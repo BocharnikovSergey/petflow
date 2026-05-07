@@ -1,3 +1,5 @@
+
+frontend/node_modules
 ### AL ###
 #Template for AL projects for Dynamics 365 Business Central
 #launch.json folder
@@ -21,6 +23,7 @@ rad.json
 *.flf
 #Test results file
 TestResults.xmlfrontend/node_modules
+
 infra/frontend/build
 .env
 
