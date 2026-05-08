@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'users.app.UsersConfig',
+    'pets.app.PetsConfig'
     'api.app.ApiConfig',
 ]
 
@@ -113,8 +114,9 @@ MEDIA_ROOT = '/media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# FORBIDDEN_USERNAME = {'me'}
+FORBIDDEN_USERNAME = {'me'} 
 IMAGE_FORMAT = {'jpg', 'png', 'jpeg'}
+MAX_SIZE_IMAGE_MB = 5 
 
 AUTH_USER_MODEL = 'users.ProjectUser'
 

@@ -21,7 +21,7 @@ class ProjectUser(AbstractUser):
         max_length=constants.MAX_LEN_NAME, verbose_name='Фамилия',
     )
     avatar = models.ImageField(
-        upload_to='users/',
+        upload_to=constants.UPLOAD_TO_USERS,
         blank=True, null=True,
         verbose_name='Аватар',
         validators=(
@@ -51,7 +51,8 @@ class ProjectUser(AbstractUser):
     def __repr__(self):
         return (
             f'{self.__class__.__name__}'
-            f'(id={self.id}, first_name={self.first_name}, last_name={self.last_name})'
+            f'(id={self.id}, '
+            f'first_name={self.first_name}, last_name={self.last_name})'
         )
 
 class Role(models.Model):

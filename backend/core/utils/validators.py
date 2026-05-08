@@ -2,15 +2,13 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from .constants import MAX_SIZE_IMAGE_MB
-
 
 def max_size_image(image):
     """Валидатор максимального размера изображения."""
-    if image.size > MAX_SIZE_IMAGE_MB * 1024 * 1024:
+    if image.size > settings.MAX_SIZE_IMAGE_MB * 1024 * 1024:
         raise ValidationError(
             'Максимальный размер изображения не должен превышать'
-            f'{MAX_SIZE_IMAGE_MB} МБ.'
+            f'{settings.MAX_SIZE_IMAGE_MB} МБ.'
         )
 
 
