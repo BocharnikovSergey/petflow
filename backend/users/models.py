@@ -4,6 +4,7 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 
 from .utils import constants
+from core.utils.constants import MAX_LEN_PHONE
 from core.utils.validators import max_size_image
 
 
@@ -29,7 +30,7 @@ class ProjectUser(AbstractUser):
         ),
     )
     phone = models.CharField(
-        max_length=constants.MAX_LEN_PHONE,
+        max_length=MAX_LEN_PHONE,
         blank=True, null=True, verbose_name='Телефон'
     )
     bio = models.TextField(blank=True, null=True, verbose_name='О себе')

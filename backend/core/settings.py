@@ -31,6 +31,7 @@ INSTALLED_APPS = [
 
     'users.app.UsersConfig',
     'pets.app.PetsConfig'
+    'clinics.app.ClinicsConfig'
     'api.app.ApiConfig',
 ]
 
