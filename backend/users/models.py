@@ -6,6 +6,7 @@ from django.db import models
 from .utils import constants
 from core.utils.constants import MAX_LEN_PHONE
 from core.utils.validators import max_size_image
+from clinics.models import Clinic
 
 
 class ProjectUser(AbstractUser):
@@ -48,7 +49,7 @@ class ProjectUser(AbstractUser):
     
     @property
     def full_name(self):
-        return f'{self.first_name}, {self.last_name}'strip()
+        return f'{self.first_name}, {self.last_name}'.strip()
 
     def __str__(self):
         return self.full_name
@@ -94,7 +95,7 @@ class UserRole(models.Model):
         verbose_name='Роль'
     )
     clinic = models.ForeignKey(
-        'Clinic',
+        Clinic,
         on_delete=models.CASCADE,
         blank=True, null=True,
         related_name='user_roles',

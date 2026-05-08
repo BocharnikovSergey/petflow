@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import FileExtensionValidator
 
 from .utils import constants
 from core.utils.validators import max_size_image
@@ -102,7 +104,7 @@ class Pet(TimeStampedModel):
     avatar = models.ImageField(
         upload_to='pets/avatars/',
         blank=True, null=True,
-        verbose_name='Фото питомца'
+        verbose_name='Фото питомца',
         validators=(
             FileExtensionValidator(settings.IMAGE_FORMAT), max_size_image
         ),

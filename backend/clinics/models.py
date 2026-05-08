@@ -61,7 +61,7 @@ class Clinic(TimeStampedModel):
     )
     phone = models.CharField(
         max_length=MAX_LEN_PHONE,
-        blank=True, null=True
+        blank=True, null=True,
         verbose_name='Телефон'
     )
     email = models.EmailField(
@@ -69,7 +69,7 @@ class Clinic(TimeStampedModel):
         verbose_name='Email клиники'
     )
     description = models.TextField(
-        blank=True, null=True
+        blank=True, null=True,
         verbose_name='Описание'
     )
     logo = models.ImageField(

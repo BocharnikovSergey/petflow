@@ -29,11 +29,11 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
 
-    'users.app.UsersConfig',
-    'pets.app.PetsConfig',
-    'clinics.app.ClinicsConfig',
-    'reviews.app.ReviewsConfig',
-    'api.app.ApiConfig',
+    'users.apps.UsersConfig',
+    'pets.apps.PetsConfig',
+    'clinics.apps.ClinicsConfig',
+    'reviews.apps.ReviewsConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
