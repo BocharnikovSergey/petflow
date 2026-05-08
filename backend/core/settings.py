@@ -30,8 +30,9 @@ INSTALLED_APPS = [
     'django_filters',
 
     'users.app.UsersConfig',
-    'pets.app.PetsConfig'
-    'clinics.app.ClinicsConfig'
+    'pets.app.PetsConfig',
+    'clinics.app.ClinicsConfig',
+    'reviews.app.ReviewsConfig',
     'api.app.ApiConfig',
 ]
 

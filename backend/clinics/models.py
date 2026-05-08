@@ -35,7 +35,7 @@ class Address(TimeStampedModel):
     
     @property
     def full_address(self):
-        return f'г.{self.city}, ул.{self.street}, д.{self.house}'
+        return f'г.{self.city}, ул.{self.street}, д.{self.house}'.strip()
 
     def __str__(self):
         return f'{self.full_address}'
