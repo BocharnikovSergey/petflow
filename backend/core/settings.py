@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'users.app.UsersConfig',
+    'api.app.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -126,11 +127,11 @@ REST_FRAMEWORK = {
 # Настройки Djoser
 DJOSER = {
     'LOGIN_FIELD': 'email',
-    # 'SERIALIZERS': {
-    #     'user_create': 'users.serializers.CustomUserCreateSerializer',
-    #     'user': 'users.serializers.CustomUserSerializer',
-    #     'current_user': 'users.serializers.CustomUserSerializer',
-    # },
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CustomUserCreateSerializer',
+        'user': 'users.serializers.ProjectUserSerializer',
+        'current_user': 'users.serializers.ProjectUserSerializer',
+    },
 }
 
 SIMPLE_JWT = {
