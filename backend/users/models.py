@@ -46,14 +46,14 @@ class ProjectUser(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ('email',)
-    
+
     @property
     def full_name(self):
-        return f'{self.first_name}, {self.last_name}'.strip()
+        return f'{self.first_name} {self.last_name}'.strip()
 
     def __str__(self):
         return self.full_name
-    
+
     def __repr__(self):
         return (
             f'{self.__class__.__name__}'
@@ -61,11 +61,15 @@ class ProjectUser(AbstractUser):
             f'first_name={self.first_name}, last_name={self.last_name})'
         )
 
+
 class Role(models.Model):
     """Роль пользователя."""
     name = models.CharField(
         max_length=constants.MAX_LEN_ROLE_NAME,
         verbose_name='Название роли'
+    )
+    description = models.TextField(
+        blank=True, null=True, verbose_name='Описание роли.'
     )
 
     class Meta:
@@ -101,8 +105,17 @@ class UserRole(models.Model):
         related_name='user_roles',
         verbose_name='Клиника'
     )
+    description = models.TextField(
+        blank=True, null=True, verbose_name='Описание.'
+    )
 
     class Meta:
         verbose_name = 'Роль пользователя'
         verbose_name_plural = 'Роли пользователей'
         ordering = ('user',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'role', 'clinic'],
+                name='unique_user_role_clinic'
+            )
+        ]

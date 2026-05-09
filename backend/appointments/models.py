@@ -42,7 +42,7 @@ class Slot(TimeStampedModel):
         ]
     def __str__(self):
         return f'{self.clinic.name}: {self.start_time} - {self.end_time}'
-    
+
     def __repr__(self):
         return (
             f'{self.__class__.__name__} '

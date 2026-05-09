@@ -1,3 +1,52 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Appointment, Slot
+from .utils import constants
+
+
+@admin.register(Slot)
+class SlotAdmin(admin.ModelAdmin):
+    """
+    Админ-панель для управления временными слотами записи.
+
+    Доступ ограничен сотрудниками клиник.
+    """
+
+    list_display = ('id', 'clinic', 'start_time', 'end_time')
+    list_display_links = ('id', 'clinic')
+    list_filter = ('clinic',)
+    search_fields = ('clinic__name',)
+    autocomplete_fields = ('clinic',)
+    list_select_related = ('clinic',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        return qs if request.user.is_superuser else qs.filter(
+            clinic__user_roles__user=request.user,
+            clinic__user_roles__role__name__in=constants.SLOT_EDIT_ROLES
+        ).distinct()
+
+
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    """
+    Админ-панель для управления записями на приём.
+
+    Доступ ограничен сотрудниками клиник.
+    """
+
+    list_display = ('id', 'user', 'pet', 'clinic', 'date', 'slot', 'status')
+    list_display_links = ('id', 'user')
+    list_filter = ('status', 'clinic', 'date')
+    search_fields = ('user__full_name', 'clinic__name')
+    autocomplete_fields = ('user', 'pet', 'clinic', 'slot')
+    list_select_related = ('user', 'clinic')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        return qs if request.user.is_superuser else qs.filter(
+            clinic__user_roles__user=request.user,
+            clinic__user_roles__role__name__in=constants.APPOINTMENT_EDIT_ROLES
+        ).distinct()

@@ -32,14 +32,14 @@ class Address(TimeStampedModel):
                 name='unique_address'
             )
         ]
-    
+
     @property
     def full_address(self):
         return f'г.{self.city}, ул.{self.street}, д.{self.house}'.strip()
 
     def __str__(self):
         return f'{self.full_address}'
-    
+
     def __repr__(self):
         return (
             f'{self.__class__.__name__}'
@@ -72,6 +72,7 @@ class Clinic(TimeStampedModel):
         blank=True, null=True,
         verbose_name='Описание'
     )
+
     logo = models.ImageField(
         upload_to='clinics/logos/',
         null=True, blank=True,
@@ -85,10 +86,16 @@ class Clinic(TimeStampedModel):
         verbose_name = 'Клиника'
         verbose_name_plural = 'Клиники'
         ordering = ('name',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'address'],
+                name='unique_clinic_per_address'
+            )
+        ]
 
     def __str__(self):
         return self.name
-    
+
     def __repr__(self):
         return (
             f'{self.__class__.__name__}'
