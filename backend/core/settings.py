@@ -110,14 +110,14 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/backend_static/static/'
+STATIC_ROOT = BASE_DIR / 'backend_static/static/'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/media'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-FORBIDDEN_USERNAME = {'me'} 
+
 IMAGE_FORMAT = {'jpg', 'png', 'jpeg'}
 MAX_SIZE_IMAGE_MB = 5 
 
@@ -134,13 +134,16 @@ REST_FRAMEWORK = {
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
-        'user_create': 'users.serializers.CustomUserCreateSerializer',
-        'user': 'users.serializers.ProjectUserSerializer',
-        'current_user': 'users.serializers.ProjectUserSerializer',
+        'user_create': 'api.v1.users.serializers.SignUpSerializer',
+        # 'user': 'users.serializers.ProjectUserSerializer',
+        # 'current_user': 'users.serializers.ProjectUserSerializer',
     },
 }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }

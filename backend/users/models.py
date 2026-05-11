@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import FileExtensionValidator
 from django.db import models
 
@@ -7,6 +7,26 @@ from .utils import constants
 from core.utils.constants import MAX_LEN_PHONE
 from core.utils.validators import max_size_image
 from clinics.models import Clinic
+
+
+class ProjectUserManager(BaseUserManager):
+
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('Email обязателен')
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        return self.create_user(email, password, **extra_fields)
 
 
 class ProjectUser(AbstractUser):
@@ -40,7 +60,9 @@ class ProjectUser(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username','first_name', 'last_name']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    objects = ProjectUserManager()
 
     class Meta:
         verbose_name = 'Пользователь'
