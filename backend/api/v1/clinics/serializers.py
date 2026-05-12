@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from clinics.models import Clinic, Address
@@ -25,9 +26,9 @@ class AddressSerializer(serializers.ModelSerializer):
     
     def validate(self, attrs):
         if Address.objects.filter(
-            city=attrs['city'],
-            street=attrs['street'],
-            house=attrs['house']
+            city=attrs.get('city'),
+            street=attrs.get('street'),
+            house=attrs.get('house')
         ).exists():
             raise serializers.ValidationError(
                 'Такой адрес уже существует.'
@@ -39,12 +40,18 @@ class ClinicReadSerializer(serializers.ModelSerializer):
     """Сериализатор для чтения клиники."""
 
     address = AddressSerializer(read_only=True)
+    rating = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Clinic
         fields = (
-            'id', 'name', 'address', 'phone', 'email', 'description', 'logo'
+            'id', 'name', 'address', 'phone', 'email', 'description', 'logo',
+            'rating'
         )
+
+    @extend_schema_field(serializers.FloatField())
+    def get_rating(self, obj):
+        return round(obj.rating or 0, 1)
 
 
 class ClinicWriteSerializer(serializers.ModelSerializer):

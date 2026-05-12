@@ -1,3 +1,5 @@
+from django.db.models import Avg
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -21,10 +23,11 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 class ClinicViewSet(viewsets.ModelViewSet):
 
+    queryset = Clinic.objects.select_related('address').annotate(
+            rating=Avg('reviews__score')
+        )
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def get_queryset(self):
-        return Clinic.objects.select_related('address')
 
     def get_serializer_class(self):
         if self.action in {'create', 'update', 'partial_update'}:

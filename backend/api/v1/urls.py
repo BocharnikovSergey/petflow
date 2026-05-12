@@ -5,14 +5,20 @@ from core.docs_urls import get_docs_urls
 from .users.views import SignUpView, LoginView, UserViewSet
 from .pets.views import SpeciesViewSet, BreedViewSet, PetViewSet
 from .clinics.views import AddressViewSet, ClinicViewSet
+from .reviews.views import ReviewViewSet
 
 router_v1 = DefaultRouter()
-router_v1.register('users', UserViewSet, basename='users')
-router_v1.register('species', SpeciesViewSet, basename='species')
-router_v1.register('breeds', BreedViewSet, basename='breeds')
-router_v1.register('pets', PetViewSet, basename='pets')
-router_v1.register('address', AddressViewSet, basename='address')
-router_v1.register('clinics', ClinicViewSet, basename='clinics')
+router_v1.register('users', UserViewSet, basename='users_v1')
+router_v1.register('species', SpeciesViewSet, basename='species_v1')
+router_v1.register('breeds', BreedViewSet, basename='breeds_v1')
+router_v1.register('pets', PetViewSet, basename='pets_v1')
+router_v1.register('address', AddressViewSet, basename='address_v1')
+router_v1.register('clinics', ClinicViewSet, basename='clinics_v1')
+router_v1.register(
+    r'clinics/(?P<clinic_id>\d+)/reviews',
+    ReviewViewSet,
+    basename='reviews_v1'
+)
 
 
 urlpatterns = [
