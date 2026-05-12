@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from api.v1 import constants
 from pets.models import Species, Breed, Pet
-from ..utils import validations
 from ..serializers import BaseImageSerializer
 
 
@@ -48,7 +47,7 @@ class PetReadSerializer(serializers.ModelSerializer):
 
     species = SpeciesSerializer()
     breed = BreedReadSimpleSerializer()
-    owner = serializers.ReadOnlyField(source='owner.id')
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Pet

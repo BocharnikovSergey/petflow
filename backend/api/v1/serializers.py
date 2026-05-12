@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .utils import validations
+from . import validators
 
 
 class BaseImageSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class BaseImageSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         field = self.image_field
         file = attrs.get(field)
-        validations.validation_image(file)
+        validators.validation_image(file)
         return super().validate(attrs)
 
     def update(self, instance, validated_data):

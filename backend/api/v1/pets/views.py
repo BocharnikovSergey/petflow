@@ -23,9 +23,9 @@ class SpeciesViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def breeds(self, request, pk=None):
         species = self.get_object()
-        breeds = species.breeds.all().select_related('species')
-
-        serializer = BreedReadSerializer(breeds, many=True)
+        serializer = BreedReadSerializer(
+            species.breeds.all().select_related('species'), many=True
+        )
         return Response(serializer.data)
 
 
@@ -38,7 +38,7 @@ class BreedViewSet(viewsets.ModelViewSet):
 
 
     def get_serializer_class(self):
-        if self.action in ['create', 'update']:
+        if self.action in ['create', 'update', 'partial_update']:
             return BreedWriteSerializer
         return BreedReadSerializer
 

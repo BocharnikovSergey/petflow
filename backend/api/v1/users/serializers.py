@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from users.models import Role, UserRole
-from ..utils import validations
+from .. import validators
 from ..serializers import BaseImageSerializer
 from ..pets.serializers import PetShortSerializer
 
@@ -14,6 +14,8 @@ class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для регистрации."""
 
     password = serializers.CharField(write_only=True)
+    first_name = serializers.CharField(validators=[validators.validation_name])
+    last_name = serializers.CharField(validators=[validators.validation_name])
 
     class Meta:
         model = User
@@ -24,13 +26,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError('Пользователь уже существует')
         return email
-
-    def validate_first_name(self, first_name):
-        return validations.validation_name(first_name)
-
-    def validate_last_name(self, last_name):
-        return validations.validation_name(last_name)
-
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -74,19 +69,20 @@ class TokenResponseSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 
     pets = PetShortSerializer(many=True, read_only=True)
+    first_name = serializers.CharField(validators=[validators.validation_name])
+    last_name = serializers.CharField(validators=[validators.validation_name])
+    phone = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True,
+        validators=[validators.validate_phone]
+    )
 
     class Meta:
         model = User
         fields = (
-            'id', 'email', 'first_name', 'last_name', 'avatar', 'bio', 'pets'
+            'id', 'email', 'phone', 'first_name', 'last_name', 'avatar', 'bio',
+            'pets'
         )
         read_only_fields = ('id', 'email', 'avatar')
-
-    def validate_first_name(self, first_name):
-        return validations.validation_name(first_name)
-
-    def validate_last_name(self, last_name):
-        return validations.validation_name(last_name)
 
 
 class AvatarSerializer(BaseImageSerializer):
