@@ -6,6 +6,7 @@ from .users.views import SignUpView, LoginView, UserViewSet
 from .pets.views import SpeciesViewSet, BreedViewSet, PetViewSet
 from .clinics.views import AddressViewSet, ClinicViewSet
 from .reviews.views import ReviewViewSet
+from .appointments.views import SlotViewSet, AppointmentViewSet
 
 router_v1 = DefaultRouter()
 router_v1.register('users', UserViewSet, basename='users_v1')
@@ -19,7 +20,15 @@ router_v1.register(
     ReviewViewSet,
     basename='reviews_v1'
 )
-
+router_v1.register(
+    r'clinics/(?P<clinic_id>\d+)/slots',
+    SlotViewSet, basename='slots_v1'
+)
+router_v1.register(
+    r'clinics/(?P<clinic_id>\d+)/appointments',
+    AppointmentViewSet,
+    basename='appointment_v1'
+)
 
 urlpatterns = [
     *[path(url, view, name=name) for url, view, name in get_docs_urls('v1')],

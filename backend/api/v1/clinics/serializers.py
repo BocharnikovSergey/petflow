@@ -54,6 +54,13 @@ class ClinicReadSerializer(serializers.ModelSerializer):
         return round(obj.rating or 0, 1)
 
 
+class ClinicShortSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Clinic
+        fields = ('id', 'name', 'address', 'phone', 'email')
+
+
 class ClinicWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для создания клиники."""
 

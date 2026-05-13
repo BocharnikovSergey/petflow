@@ -56,6 +56,14 @@ class PetReadSerializer(serializers.ModelSerializer):
             'avatar'
         )
 
+
+class PetShortSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Pet
+        fields = ('id', 'name', 'species')
+
+
 class PetWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для создания питомца."""
 

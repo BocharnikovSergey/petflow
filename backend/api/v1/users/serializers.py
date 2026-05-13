@@ -85,6 +85,13 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'email', 'avatar')
 
 
+class UserShortSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'full_name', 'email', 'phone')
+
+
 class AvatarSerializer(BaseImageSerializer):
 
     image_field = 'avatar'
