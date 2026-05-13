@@ -100,7 +100,7 @@ class PetShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pet
-        fields = ('id', 'name', 'avatar')
+        fields = ('id', 'name', 'species')
 
 
 class AvatarSerializer(BaseImageSerializer):
