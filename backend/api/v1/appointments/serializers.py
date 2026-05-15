@@ -113,3 +113,6 @@ class AppointmentWriteSerializer(serializers.ModelSerializer):
                 'slot': 'Этот слот уже занят.'
             })
         return attrs
+
+    def to_representation(self, instance):
+        return AppointmentReadSerializer(instance, context=self.context).data

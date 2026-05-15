@@ -28,19 +28,10 @@ class SignUpSerializer(serializers.ModelSerializer):
         return email
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            password=validated_data['password'],
-            username=None,
-        )
+        user = User.objects.create_user(**validated_data, username=None)
         role, _ = Role.objects.get_or_create(name='user')
 
-        UserRole.objects.create(
-            user=user,
-            role=role,
-        )
+        UserRole.objects.create(user=user, role=role)
         return user
 
 

@@ -128,7 +128,19 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS': (
+        'rest_framework.pagination.PageNumberPagination'
+    ),
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
 }
 
 # Настройки Djoser
@@ -136,8 +148,8 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
         'user_create': 'api.v1.users.serializers.SignUpSerializer',
-        # 'user': 'users.serializers.ProjectUserSerializer',
-        # 'current_user': 'users.serializers.ProjectUserSerializer',
+        'user': 'api.v1.users.serializers.UserSerializer',
+        'current_user': 'api.v1.users.serializers.UserSerializer',
     },
 }
 

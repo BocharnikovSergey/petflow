@@ -82,6 +82,12 @@ class ProjectUser(AbstractUser):
             f'(id={self.id}, '
             f'first_name={self.first_name}, last_name={self.last_name})'
         )
+    
+    def has_any_role(self, *role_names):
+        return self.roles.filter(role__name__in=role_names).exists()
+    
+    def is_clinic_member(self, clinic):
+        return self.roles.filter(clinic=clinic).exists()
 
 
 class Role(models.Model):

@@ -1,6 +1,6 @@
 from django.db.models import Avg
-
-from rest_framework import viewsets, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly, IsAuthenticated
@@ -12,11 +12,13 @@ from .serializers import (
     AddressSerializer, ClinicReadSerializer, ClinicWriteSerializer,
     LogoSerializer
 )
+from .filters import ClinicFilter
+from ..permissions import IsAdminOrReadOnly, IsClinicStaffOrAdminOrReadOnly
 
 
 class AddressViewSet(viewsets.ModelViewSet):
     queryset = Address.objects.all().order_by('city', 'street')
-    # permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = AddressSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
 
@@ -26,7 +28,16 @@ class ClinicViewSet(viewsets.ModelViewSet):
     queryset = Clinic.objects.select_related('address').annotate(
             rating=Avg('reviews__score')
         )
+    permission_classes = [IsClinicStaffOrAdminOrReadOnly]
     http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
+    filterset_class = ClinicFilter
+    search_fields = ('name', 'address__city', 'address__street')
+    ordering_fields = ('name', 'rating',)
 
 
     def get_serializer_class(self):
@@ -41,11 +52,13 @@ class ClinicViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['patch'],
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsClinicStaffOrAdminOrReadOnly,)
     )
     def logo(self, request, pk=None):
         clinic = self.get_object()
-        serializer = self.get_serializer(clinic, data=request.data,  partial=True)
+        serializer = self.get_serializer(
+            clinic, data=request.data,  partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

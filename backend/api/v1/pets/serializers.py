@@ -95,12 +95,8 @@ class PetWriteSerializer(serializers.ModelSerializer):
 
         return attrs
 
-
-class PetShortSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Pet
-        fields = ('id', 'name', 'species')
+    def to_representation(self, instance):
+        return PetReadSerializer(instance, context=self.context).data
 
 
 class AvatarSerializer(BaseImageSerializer):

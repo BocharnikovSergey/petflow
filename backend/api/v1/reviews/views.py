@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 
 from .serializers import ReviewSerializer
+from ..permissions import IsOwnerOrReadOnly
 from clinics.models import Clinic
 
 
@@ -10,6 +11,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_clinic(self):
         """Получает произведение по id из URL."""

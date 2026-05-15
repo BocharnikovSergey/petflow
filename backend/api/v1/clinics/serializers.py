@@ -78,6 +78,9 @@ class ClinicWriteSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'address', 'phone', 'email', 'description'
         )
+    
+    def to_representation(self, instance):
+        return ClinicReadSerializer(instance, context=self.context).data
 
 
 class LogoSerializer(BaseImageSerializer):

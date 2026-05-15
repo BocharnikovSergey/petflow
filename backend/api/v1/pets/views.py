@@ -1,11 +1,15 @@
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import (
     SpeciesSerializer, BreedReadSerializer, BreedWriteSerializer, 
     PetReadSerializer, PetWriteSerializer, AvatarSerializer
+)
+from ..permissions import (
+    IsAdminOrReadOnly, IsPetOwnerOrClinicReadOnly, IsPetOwner
 )
 from pets.models import Species, Breed, Pet
 
@@ -16,7 +20,7 @@ class SpeciesViewSet(viewsets.ModelViewSet):
 
     queryset = Species.objects.all()
     serializer_class = SpeciesSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminOrReadOnly]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
 
@@ -33,7 +37,7 @@ class BreedViewSet(viewsets.ModelViewSet):
     """Вью для породы животного."""
 
     queryset = Breed.objects.select_related('species')
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminOrReadOnly]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
 
@@ -46,13 +50,16 @@ class BreedViewSet(viewsets.ModelViewSet):
 class PetViewSet(viewsets.ModelViewSet):
 
     http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = [IsPetOwnerOrClinicReadOnly]
 
     def get_queryset(self):
-        return (
-            Pet.objects.filter(owner=self.request.user).select_related(
-                'species', 'breed', 'breed__species'
-            )
-        )
+        user = self.request.user
+        return Pet.objects.filter(
+            Q(owner=user) | Q(appointments__clinic__user_roles__user=user)
+        ).distinct().select_related(
+            'species', 'breed', 'breed__species', 'owner'
+        ).prefetch_related('appointments__clinic__user_roles')
+
 
     def get_serializer_class(self):
         if self.action in ['create', 'update']:
@@ -64,7 +71,7 @@ class PetViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['patch'],
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsPetOwner,)
     )
     def avatar(self, request, pk=None):
         pet = self.get_object()

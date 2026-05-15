@@ -11,6 +11,7 @@ from .serializers import (
     AvatarSerializer, SignUpSerializer, LoginSerializer,
     TokenResponseSerializer, UserSerializer
 )
+from ..permissions import IsOwner, IsAdminOrReadOnly
 
 
 User = get_user_model()
@@ -43,11 +44,10 @@ class LoginView(generics.GenericAPIView):
         )
 
 
-# Написать права доступа.
 class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.prefetch_related('pets')
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = UserSerializer
     http_method_names = ['get', 'patch', 'delete']
 
@@ -59,6 +59,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
+        permission_classes=[IsOwner]
     )
     def me(self, request):
         user = request.user
@@ -86,7 +87,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['patch'],
-        permission_classes=(IsAuthenticated,),
+        permission_classes=(IsOwner,),
         url_path='me/avatar'
     )
     def avatar(self, request):
