@@ -14,8 +14,6 @@ class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для регистрации."""
 
     password = serializers.CharField(write_only=True)
-    first_name = serializers.CharField(validators=[validators.validation_name])
-    last_name = serializers.CharField(validators=[validators.validation_name])
 
     class Meta:
         model = User
@@ -26,6 +24,12 @@ class SignUpSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError('Пользователь уже существует')
         return email
+
+    def validate_first_name(self, name):
+        return validators.validation_name(name)
+    
+    def validate_last_name(self, name):
+        return validators.validation_name(name)
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data, username=None)
@@ -60,8 +64,6 @@ class TokenResponseSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 
     pets = PetShortSerializer(many=True, read_only=True)
-    first_name = serializers.CharField(validators=[validators.validation_name])
-    last_name = serializers.CharField(validators=[validators.validation_name])
     phone = serializers.CharField(
         required=False, allow_null=True, allow_blank=True,
         validators=[validators.validate_phone]
@@ -74,6 +76,12 @@ class UserSerializer(serializers.ModelSerializer):
             'pets'
         )
         read_only_fields = ('id', 'email', 'avatar')
+    
+    def validate_first_name(self, name):
+        return validators.validation_name(name)
+    
+    def validate_last_name(self, name):
+        return validators.validation_name(name)
 
 
 class UserShortSerializer(serializers.ModelSerializer):

@@ -16,7 +16,7 @@ def validation_name(value):
     value = value.strip()
     if not value or len(value) < constants.MIN_LEN_NAME:
         raise serializers.ValidationError(constants.ERROR_INVALID_NAME)
-    
+
     return value.strip().title()
 
 
@@ -34,7 +34,7 @@ def validation_image(file):
         
         file.seek(0)
         with Image.open(file) as img:
-            if img.format not in constants.IMAGE_FORMAT:
+            if img.format.lower() not in constants.IMAGE_FORMAT:
                 raise serializers.ValidationError(
                     f'Разрешен формат: {", ".join(constants.IMAGE_FORMAT)}'
                 )

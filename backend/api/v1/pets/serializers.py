@@ -3,15 +3,18 @@ from rest_framework import serializers
 from api.v1 import constants
 from pets.models import Species, Breed, Pet
 from ..serializers import BaseImageSerializer
+from ..validators import validation_name
 
 
 class SpeciesSerializer(serializers.ModelSerializer):
     """Сериализатор для вида животного."""
-    name = serializers.CharField(min_length=constants.MIN_LEN_NAME)
 
     class Meta:
         model = Species
         fields = ('id', 'name')
+    
+    def validate_name(self, name):
+        return validation_name(name)
 
 
 class BreedReadSerializer(serializers.ModelSerializer):
@@ -22,6 +25,7 @@ class BreedReadSerializer(serializers.ModelSerializer):
         model = Breed
         fields = ('id', 'name', 'species')
 
+
 class BreedReadSimpleSerializer(serializers.ModelSerializer):
     """Сериализатор для вывода породы животного в питомце."""
 
@@ -29,17 +33,20 @@ class BreedReadSimpleSerializer(serializers.ModelSerializer):
         model = Breed
         fields = ('id', 'name')
 
+
 class BreedWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для создания породы животного."""
     species = serializers.PrimaryKeyRelatedField(
         queryset=Species.objects.all()
     )
-    name = serializers.CharField(min_length=constants.MIN_LEN_NAME)
-
 
     class Meta:
         model = Breed
         fields = ('id', 'name', 'species')
+    
+    def validate_name(self, name):
+        return validation_name(name)
+
 
 
 class PetReadSerializer(serializers.ModelSerializer):
@@ -76,7 +83,6 @@ class PetWriteSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
-    name = serializers.CharField(min_length=constants.MIN_LEN_NAME)
 
     class Meta:
         model = Pet
@@ -97,6 +103,9 @@ class PetWriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return PetReadSerializer(instance, context=self.context).data
+
+    def validate_name(self, name):
+        return validation_name(name)
 
 
 class AvatarSerializer(BaseImageSerializer):

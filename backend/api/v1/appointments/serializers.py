@@ -87,7 +87,8 @@ class AppointmentWriteSerializer(serializers.ModelSerializer):
         return pet
     
     def validate_date(seld, date):
-        if timezone.now().date() < date:
+        if timezone.now().date() > date:
+            print(timezone.now().date(), date)
             raise serializers.ValidationError(
                 'Дата не может быть в прошлом.'
             )
@@ -103,6 +104,16 @@ class AppointmentWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """Проверка записи."""
+
+        date = attrs.get('date')
+        slot = attrs.get('slot')
+
+        time_now = timezone.now()
+
+        if date == time_now.date() and slot.start_time <= time_now.time():
+            raise serializers.ValidationError({
+                'slot': 'Нельзя записаться на прошедшее время.'
+            })
 
         if Appointment.objects.filter(
             clinic=self.context['view'].kwargs['clinic_id'],

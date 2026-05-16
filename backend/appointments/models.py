@@ -27,8 +27,8 @@ class Slot(TimeStampedModel):
         related_name='slots',
         verbose_name='Клиника'
     )
-    start_time = models.TimeField(verbose_name='Дата и время начала')
-    end_time = models.TimeField(verbose_name='Дата и время окончания')
+    start_time = models.TimeField(verbose_name='Время начала')
+    end_time = models.TimeField(verbose_name='Время окончания')
 
     class Meta:
         verbose_name = 'Доступное время'
