@@ -94,9 +94,15 @@ pip install -r requirements.txt
 ### 6. Развертывание проекта на Docker:
 Подготовить .env файл. Выполнить команды
 
+```bash
 cd ./infra/
 docker compose up --build.
-
+```
+Для заполнения volumes  выполнить команды
+```bash
+docker run --rm   -v infra_pg_data:/volume   -v "$(pwd -W):/backup"   alpine   sh -c "ls -l /backup && tar xzf /backup/pg_data.tar.gz -C /volume"
+docker run --rm   -v infra_media:/volume   -v "$(pwd -W):/backup"   alpine   sh -c "ls -l /backup && tar xzf /backup/media.tar.gz -C /volume"
+```
 
 ### 7. Документация API
 Документация доступна по адресу:
