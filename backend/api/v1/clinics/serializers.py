@@ -51,7 +51,7 @@ class ClinicReadSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.FloatField())
     def get_rating(self, obj):
-        return round(obj.rating or 0, 1)
+        return round(getattr(obj, 'rating', 0) or 0, 1)
 
 
 class ClinicShortSerializer(serializers.ModelSerializer):
@@ -70,7 +70,6 @@ class ClinicWriteSerializer(serializers.ModelSerializer):
 
     phone = serializers.CharField(
         required=False, allow_null=True, allow_blank=True,
-        validators=[validators.validate_phone]
     )
 
     class Meta:
@@ -81,6 +80,9 @@ class ClinicWriteSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         return ClinicReadSerializer(instance, context=self.context).data
+    
+    def validate_phone(self, phone):
+        return validators.validate_phone(phone)
 
 
 class LogoSerializer(BaseImageSerializer):

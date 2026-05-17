@@ -1,0 +1,32 @@
+version: '3.3'
+volumes:
+  pg_data:
+  media:
+
+services:
+  db:
+    image: postgres:14
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    container_name: petflow-back
+    env_file: .env
+    build: ../backend/
+    command: >
+      sh -c "
+      python3 manage.py migrate &&
+      python3 manage.py runserver 0.0.0.0:8000
+      "
+    ports:
+      - "8000:8000"
+    volumes:
+      - media:/app/media/
+    depends_on:
+      db:
+        condition: service_healthy

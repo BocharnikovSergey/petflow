@@ -71,7 +71,14 @@ def validate_phone(value):
     if not value:
         return value
     
-    if not re.fullmatch(pattern=constants.PATTERN_PHONE, string=value):
-        raise serializers.ValidationError('Введите корректный номер телефона.')
+    digits = re.sub(r'[^\d+]', '', value)
 
-    return value.strip()
+    if not digits.startswith('+'):
+        digits = '+' + digits
+
+    if not re.fullmatch(r'\+\d{7,15}', digits):
+        raise serializers.ValidationError(
+            'Введите корректный номер телефона.'
+        )
+
+    return digits

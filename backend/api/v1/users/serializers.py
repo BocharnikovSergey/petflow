@@ -66,7 +66,6 @@ class UserSerializer(serializers.ModelSerializer):
     pets = PetShortSerializer(many=True, read_only=True)
     phone = serializers.CharField(
         required=False, allow_null=True, allow_blank=True,
-        validators=[validators.validate_phone]
     )
 
     class Meta:
@@ -82,6 +81,9 @@ class UserSerializer(serializers.ModelSerializer):
     
     def validate_last_name(self, name):
         return validators.validation_name(name)
+    
+    def validate_phone(self, phone):
+        return validators.validate_phone(phone)
 
 
 class UserShortSerializer(serializers.ModelSerializer):

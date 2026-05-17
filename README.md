@@ -91,7 +91,14 @@ pip install -r requirements.txt
     python manage.py runserver
 ```
 
-### 6. Документация API
+### 6. Развертывание проекта на Docker:
+Подготовить .env файл. Выполнить команды
+
+cd ./infra/
+docker compose up --build.
+
+
+### 7. Документация API
 Документация доступна по адресу:
 ReDoc: http://localhost:8000/api/v1/docs/
 Swagger: http://localhost:8000/api/v1/swagger/

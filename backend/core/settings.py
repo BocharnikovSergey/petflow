@@ -3,9 +3,9 @@ import os
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -74,10 +74,10 @@ default_data = (
     },
     {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'petflow'),
-        'USER': os.getenv('POSTGRES_USER', 'petflow_user'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT', 5432)
     }
 )[os.getenv('DATA_POSTGRES', '') == 'True']
@@ -135,7 +135,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': (
         'rest_framework.pagination.PageNumberPagination'
     ),
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
