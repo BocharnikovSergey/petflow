@@ -4,6 +4,8 @@ from reviews.models import Review
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для управления отзывами."""
+
     author = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
@@ -11,6 +13,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score')
 
     def validate(self, attrs):
+        """
+        Проверяет,
+        что на клинику можно оставить только один отзыва от пользователя.
+        """
         request = self.context['request']
         if request.method == 'POST':
             clinic_id = self.context['view'].kwargs.get('clinic_id')

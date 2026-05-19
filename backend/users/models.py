@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import FileExtensionValidator
@@ -9,10 +11,16 @@ from core.utils.validators import max_size_image
 from clinics.models import Clinic
 
 
+logger = logging.getLogger(__name__)
+
+
 class ProjectUserManager(BaseUserManager):
+    """Кастомный менеджер для пользователя."""
 
     def create_user(self, email, password=None, **extra_fields):
+        """Создание обычного пользователя."""
         if not email:
+            logger.warning('Email обязвтелное поле.')
             raise ValueError('Email обязателен')
 
         email = self.normalize_email(email)
@@ -22,6 +30,7 @@ class ProjectUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
+        """Создание суперпользователя."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -84,14 +93,19 @@ class ProjectUser(AbstractUser):
         )
     
     def has_any_role(self, *role_names):
+        """
+        Проверяет, имеет ли пользователь хотя бы одну из переданных ролей.
+        """
         return self.roles.filter(role__name__in=role_names).exists()
     
     def is_clinic_member(self, clinic):
+        """Проверяет, является ли пользователь членом указанной клиники."""
         return self.roles.filter(clinic=clinic).exists()
 
 
 class Role(models.Model):
     """Роль пользователя."""
+
     name = models.CharField(
         max_length=constants.MAX_LEN_ROLE_NAME,
         verbose_name='Название роли'
@@ -114,6 +128,7 @@ class Role(models.Model):
 
 class UserRole(models.Model):
     """Связь между пользователем и ролью."""
+
     user = models.ForeignKey(
         ProjectUser,
         on_delete=models.CASCADE,

@@ -1,4 +1,8 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (
+    BasePermission, SAFE_METHODS, IsAuthenticatedOrReadOnly
+)
+
+from .mixins import ClinicAccessMixin
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -75,17 +79,7 @@ class IsOwnerOrClinicStaff(BasePermission):
             obj.user == user
             or obj.clinic.user_roles.filter(user=user).exists()
         )
-
-
-class ClinicAccessMixin:
-    def is_clinic_allowed(self, user, clinic):
-        return (
-            user.is_superuser
-            or user.has_any_role('admin')
-            or user.is_clinic_member(clinic)
-        )
-        
-
+   
 
 class IsClinicMemberOrAdminOrReadOnly(BasePermission, ClinicAccessMixin):
     """

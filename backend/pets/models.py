@@ -33,6 +33,7 @@ class Species(TimeStampedModel):
 
 class Breed(TimeStampedModel):
     """Порода животного, привязанная к виду."""
+
     species = models.ForeignKey(
         Species,
         on_delete=models.CASCADE,

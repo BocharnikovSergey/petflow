@@ -1,9 +1,13 @@
+import logging
+
 from rest_framework import serializers
 
-from api.v1 import constants
 from pets.models import Species, Breed, Pet
 from ..serializers import BaseImageSerializer
 from ..validators import validation_name
+
+
+logger = logging.getLogger(__name__)
 
 
 class SpeciesSerializer(serializers.ModelSerializer):
@@ -19,6 +23,7 @@ class SpeciesSerializer(serializers.ModelSerializer):
 
 class BreedReadSerializer(serializers.ModelSerializer):
     """Сериализатор для чтения породы животного."""
+
     species = SpeciesSerializer()
 
     class Meta:
@@ -36,6 +41,7 @@ class BreedReadSimpleSerializer(serializers.ModelSerializer):
 
 class BreedWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для создания породы животного."""
+
     species = serializers.PrimaryKeyRelatedField(
         queryset=Species.objects.all()
     )
@@ -50,7 +56,7 @@ class BreedWriteSerializer(serializers.ModelSerializer):
 
 
 class PetReadSerializer(serializers.ModelSerializer):
-    """Сериализатор для чтения питомца."""
+    """Сериализатор для вывода информации питомца."""
 
     species = SpeciesSerializer()
     breed = BreedReadSimpleSerializer()
@@ -65,6 +71,7 @@ class PetReadSerializer(serializers.ModelSerializer):
 
 
 class PetShortSerializer(serializers.ModelSerializer):
+    """Краткая информация о питомце."""
 
     class Meta:
         model = Pet
@@ -72,7 +79,7 @@ class PetShortSerializer(serializers.ModelSerializer):
 
 
 class PetWriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания питомца."""
+    """Сериализатор для создания,обновления питомца."""
 
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     species = serializers.PrimaryKeyRelatedField(
@@ -91,10 +98,14 @@ class PetWriteSerializer(serializers.ModelSerializer):
         )
     
     def validate(self, attrs):
+        """ Проверяет соответствие породы указанному виду животного."""
         species = attrs.get('species')
         breed = attrs.get('breed')
 
         if breed and species and breed.species != species:
+            logger.warning(
+                f'Порода {breed} не соответсвует виду животного {species}'
+            )
             raise serializers.ValidationError({
                 'breed': 'Порода не соответствует виду животного'
             })
@@ -109,10 +120,10 @@ class PetWriteSerializer(serializers.ModelSerializer):
 
 
 class AvatarSerializer(BaseImageSerializer):
+    """Сериализатор для поля аватара питомца."""
 
     image_field = 'avatar'
 
     class Meta:
         model = Pet
         fields = ('avatar',)
-

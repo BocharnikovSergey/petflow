@@ -4,6 +4,7 @@ from drf_spectacular.views import (
 
 
 def get_docs_urls(schema_name: str):
+    """Генерирует список URL-паттернов для документации API."""
     return [
         ('schema/', SpectacularAPIView.as_view(), f'{schema_name}-schema'),
         (

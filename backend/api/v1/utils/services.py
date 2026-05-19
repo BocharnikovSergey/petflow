@@ -11,4 +11,4 @@ def capitalize_match(match):
 
 def normalize_address(value):
     """Нормализует адрес."""
-    return re.sub(r'[0-9A-Za-zА-Яа-я]+', capitalize_match, value)
+    return re.sub(constants.PATTERN_ADDRESS, capitalize_match, value)

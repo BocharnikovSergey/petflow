@@ -3,9 +3,9 @@ import os
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -160,3 +160,38 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+
+os.makedirs(LOG_DIR, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+            
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'petflow.log'),
+            'formatter': 'simple',
+            'encoding': 'utf-8',
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+    },
+    'formatters': {
+        'simple': {'format': '%(name)s - %(levelname)s - %(message)s'},
+    },
+}
+
+MAX_SIZE_IMAGE_MB = 5
+IMAGE_FORMAT = {'jpg', 'png', 'jpeg'}

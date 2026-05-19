@@ -4,6 +4,23 @@ from .models import Address, Clinic
 from .utils import constants
 
 
+class ClinicEditRolesMixin:
+    """
+    Миксин для фильтрации объектов
+    в админ-панели по права на редактирование клиники.
+    """
+
+    def get_queryset(self, request):
+        """Возвращает отфильтрованный queryset с учётом прав пользователя."""
+        qs = super().get_queryset(request)
+
+        return qs if request.user.is_superuser else qs.filter(
+            user_roles__user=request.user,
+            user_roles__role__name__in=constants.CLINIC_EDIT_ROLES
+        ).distinct()
+
+
+
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
     """Админ-панель для управления адресами клиник."""
@@ -15,7 +32,7 @@ class AddressAdmin(admin.ModelAdmin):
 
 
 @admin.register(Clinic)
-class ClinicAdmin(admin.ModelAdmin):
+class ClinicAdmin(ClinicEditRolesMixin, admin.ModelAdmin):
     """
     Админ-панель для управления ветеринарными клиниками.
 
@@ -31,6 +48,7 @@ class ClinicAdmin(admin.ModelAdmin):
     list_select_related = ('address',)
 
     def get_queryset(self, request):
+        """Возвращает отфильтрованный queryset с учётом прав пользователя."""
         qs = super().get_queryset(request)
 
         return qs if request.user.is_superuser else qs.filter(

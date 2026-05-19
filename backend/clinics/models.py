@@ -10,6 +10,7 @@ from core.utils.validators import max_size_image
 
 class Address(TimeStampedModel):
     """Модель адреса, который может быть общим для нескольких клиник."""
+
     city = models.CharField(
         max_length=constants.MAX_LEN_CITY,
         verbose_name='Город'
@@ -49,6 +50,7 @@ class Address(TimeStampedModel):
 
 class Clinic(TimeStampedModel):
     """Модель ветеринарной клиники."""
+
     name = models.CharField(
         max_length=constants.MAX_LEN_CLINIC_NAME,
         verbose_name='Название клиники'

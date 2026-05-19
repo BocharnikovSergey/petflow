@@ -21,6 +21,7 @@ class AppointmentStatus(models.TextChoices):
 
 class Slot(TimeStampedModel):
     """Доступные временные слоты для записи в клинику."""
+
     clinic = models.ForeignKey(
         Clinic,
         on_delete=models.CASCADE,
