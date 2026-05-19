@@ -6,6 +6,8 @@ from rest_framework import serializers
 from clinics.models import Clinic, Address
 from .. import validators
 from ..serializers import BaseImageSerializer
+from ..pets.serializers import SpeciesSerializer
+from pets.models import Species
 
 
 logger = logging.getLogger(__name__)
@@ -51,12 +53,13 @@ class ClinicReadSerializer(serializers.ModelSerializer):
 
     address = AddressSerializer(read_only=True)
     rating = serializers.SerializerMethodField(read_only=True)
+    species = SpeciesSerializer(many=True, read_only=True)
 
     class Meta:
         model = Clinic
         fields = (
             'id', 'name', 'address', 'phone', 'email', 'description', 'logo',
-            'rating'
+            'rating', 'species'
         )
 
     @extend_schema_field(serializers.FloatField())
@@ -82,15 +85,19 @@ class ClinicWriteSerializer(serializers.ModelSerializer):
     address = serializers.PrimaryKeyRelatedField(
         queryset=Address.objects.all()
     )
-
     phone = serializers.CharField(
         required=False, allow_null=True, allow_blank=True,
     )
+    species = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Species.objects.all()
+    )
+
 
     class Meta:
         model = Clinic
         fields = (
-            'id', 'name', 'address', 'phone', 'email', 'description'
+            'id', 'name', 'address', 'phone', 'email', 'description', 'species'
         )
     
     def to_representation(self, instance):

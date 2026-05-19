@@ -1,13 +1,11 @@
-from django.conf import settings
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.core.validators import FileExtensionValidator
 
 from .utils import constants
+from core.utils.constants import IMAGE_FORMAT
 from core.utils.validators import max_size_image
 from core.models import TimeStampedModel
-
-User = get_user_model()
 
 
 class Species(TimeStampedModel):
@@ -69,7 +67,7 @@ class Pet(TimeStampedModel):
     """Модель питомца."""
     
     owner = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='pets',
         verbose_name='Владелец'
@@ -107,7 +105,7 @@ class Pet(TimeStampedModel):
         blank=True, null=True,
         verbose_name='Фото питомца',
         validators=(
-            FileExtensionValidator(settings.IMAGE_FORMAT), max_size_image
+            FileExtensionValidator(IMAGE_FORMAT), max_size_image
         ),
     )
 

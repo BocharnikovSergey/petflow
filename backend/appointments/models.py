@@ -1,13 +1,10 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from core.models import TimeStampedModel
 from .utils import constants
 from pets.models import Pet
 from clinics.models import Clinic
-
-
-User = get_user_model()
 
 
 class AppointmentStatus(models.TextChoices):
@@ -56,7 +53,7 @@ class Appointment(TimeStampedModel):
     """Модель записи пользователя с питомцем в клинику."""
 
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='appointments',
         verbose_name='Пользователь'

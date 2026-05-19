@@ -1,11 +1,12 @@
 from django.db import models
-from django.conf import settings
 from django.core.validators import FileExtensionValidator
 
 from core.models import TimeStampedModel
 from .utils import constants
-from core.utils.constants import MAX_LEN_PHONE
+from core.utils.constants import MAX_LEN_PHONE, IMAGE_FORMAT
 from core.utils.validators import max_size_image
+
+from pets.models import Species
 
 
 class Address(TimeStampedModel):
@@ -79,9 +80,15 @@ class Clinic(TimeStampedModel):
         upload_to='clinics/logos/',
         null=True, blank=True,
         validators=(
-            FileExtensionValidator(settings.IMAGE_FORMAT), max_size_image
+            FileExtensionValidator(IMAGE_FORMAT), max_size_image
         ),
         verbose_name='Логотип'
+    )
+
+    species = models.ManyToManyField(
+        Species,
+        related_name='clinics',
+        verbose_name='Специализация'
     )
 
     class Meta:

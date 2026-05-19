@@ -27,7 +27,10 @@ class ClinicFilter(django_filters.FilterSet):
         field_name='avg_rating',
         lookup_expr='lte'
     )
+    species = django_filters.NumberFilter(field_name='species__id')
 
     class Meta:
         model = Clinic
-        fields = ('city', 'street', 'name', 'min_rating', 'max_rating')
+        fields = (
+            'city', 'street', 'name', 'min_rating', 'max_rating', 'species'
+        )

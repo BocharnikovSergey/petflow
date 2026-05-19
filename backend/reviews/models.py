@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from core.models import TimeStampedModel
@@ -7,14 +7,11 @@ from clinics.models import Clinic
 from .utils import constants
 
 
-User = get_user_model()
-
-
 class Review(TimeStampedModel):
     """Модель отзыва о клинике."""
     
     author = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Автор отзыва'

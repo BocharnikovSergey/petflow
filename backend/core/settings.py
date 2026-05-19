@@ -31,8 +31,8 @@ INSTALLED_APPS = [
     'django_filters',
 
     'users.apps.UsersConfig',
-    'pets.apps.PetsConfig',
     'clinics.apps.ClinicsConfig',
+    'pets.apps.PetsConfig',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
     'appointments.apps.AppointmentsConfig',
@@ -118,7 +118,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 IMAGE_FORMAT = {'jpg', 'png', 'jpeg'}
 MAX_SIZE_IMAGE_MB = 5 
 
@@ -192,6 +191,3 @@ LOGGING = {
         'simple': {'format': '%(name)s - %(levelname)s - %(message)s'},
     },
 }
-
-MAX_SIZE_IMAGE_MB = 5
-IMAGE_FORMAT = {'jpg', 'png', 'jpeg'}
