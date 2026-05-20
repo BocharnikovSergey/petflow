@@ -1,8 +1,10 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
 
+from appointments.models import AppointmentStatus
 from clinics.models import Clinic
+
 
 
 class ClinicMixin:
@@ -77,4 +79,20 @@ class ImageActionMixin:
             {'detail': f'{self.image_field} удалён.'},
             status=status.HTTP_204_NO_CONTENT
         )
-  
+
+
+class AppointmentCancelMixin:
+    """Миксин для отмены записи."""
+
+    def destroy(self, request, *args, **kwargs):
+        """Обрабатывает DELETE запрос."""
+        instance = self.get_object()
+        if instance.status == AppointmentStatus.CANCELED:
+            return Response(
+                {'detail': 'Запись уже отменена.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        instance.status = AppointmentStatus.CANCELED
+        instance.save(update_fields=['status'])
+        serializer = self.read_serializer_class(instance)
+        return Response(serializer.data)
