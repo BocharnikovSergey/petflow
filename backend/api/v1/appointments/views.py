@@ -7,8 +7,10 @@ from rest_framework import viewsets
 from .serializers import (
     SlotSerializer, AppointmentReadSerializer, AppointmentWriteSerializer
 )
-from ..permissions import IsOwnerOrClinicStaff, IsClinicMemberOrAdminOrReadOnly
+from ..permissions import (
+    IsOwnerOrClinicStaff, IsClinicMemberOrAdminOrReadOnly, IsOwner)
 from ..mixins import ClinicMixin, ActionReadWriteSerializerMixin
+from appointments.models import Appointment
 
 
 logger = logging.getLogger(__name__)
@@ -34,12 +36,12 @@ class SlotViewSet(ClinicMixin, viewsets.ModelViewSet):
         serializer.save(clinic=self.get_clinic())
 
 
-class AppointmentViewSet(
+class ClinicAppointmentViewSet(
     ClinicMixin, ActionReadWriteSerializerMixin, viewsets.ModelViewSet
 ):
     """Управление записями на приём."""
 
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ['get', 'post', 'patch']
     permission_classes = [IsOwnerOrClinicStaff]
     read_serializer_class = AppointmentReadSerializer
     write_serializer_class = AppointmentWriteSerializer
@@ -60,3 +62,23 @@ class AppointmentViewSet(
         """Создаёт запись с текущей клиникой и пользователем."""
         serializer.save(clinic=self.get_clinic(), user=self.request.user)
 
+
+
+class MeAppointmentViewSet(
+    ActionReadWriteSerializerMixin,
+    viewsets.ModelViewSet
+):
+    """
+    Записи текущего пользователя.
+    """
+    http_method_names = ['get', 'patch']
+    permission_classes = [IsOwner]
+    read_serializer_class = AppointmentReadSerializer
+    write_serializer_class = AppointmentWriteSerializer
+
+    def get_queryset(self):
+        return (
+            Appointment.objects.filter(user=self.request.user).select_related(
+                'clinic', 'slot', 'pet',
+            )
+        )

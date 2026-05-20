@@ -103,19 +103,30 @@ class AppointmentWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(message)
         return date
 
-    def validate_slot(self, slot):
-        clinic = self.context['view'].kwargs['clinic_id']
-        if slot.clinic.id != int(clinic):
-            message = 'Слот не принадлежит клинике.'
-            logger.warning(message)
-            raise serializers.ValidationError(message)
-        return slot
+    # def validate_slot(self, slot):
+    #     clinic = self.context['view'].kwargs['clinic_id']
+    #     if slot.clinic.id != int(clinic):
+    #         message = 'Слот не принадлежит клинике.'
+    #         logger.warning(message)
+    #         raise serializers.ValidationError(message)
+    #     return slot
 
     def validate(self, attrs):
         """Проверяет, что дата/время не в прошлом и слот свободен."""
 
-        date = attrs.get('date')
-        slot = attrs.get('slot')
+        date = attrs.get('date', getattr(self.instance, 'date', None))
+        slot = attrs.get('slot', getattr(self.instance, 'slot', None))
+        clinic = getattr(self.instance, 'clinic', None)
+
+        if hasattr(self.context['view'], 'get_clinic'):
+            clinic = self.context['view'].get_clinic()
+
+        if clinic and slot.clinic != clinic:
+            message = 'Слот не принадлежит клинике.'
+            logger.warning(message)
+            raise serializers.ValidationError({
+                'slot': message
+            })
 
         time_now = timezone.now()
 
@@ -125,7 +136,7 @@ class AppointmentWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'slot': message})
 
         if Appointment.objects.filter(
-            clinic=self.context['view'].kwargs['clinic_id'],
+            clinic=clinic,
             slot=attrs.get('slot'),
             date=attrs.get('date')
         ).exists():

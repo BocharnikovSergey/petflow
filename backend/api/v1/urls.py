@@ -6,7 +6,9 @@ from .users.views import SignUpView, LoginView, UserViewSet
 from .pets.views import SpeciesViewSet, BreedViewSet, PetViewSet
 from .clinics.views import AddressViewSet, ClinicViewSet
 from .reviews.views import ReviewViewSet
-from .appointments.views import SlotViewSet, AppointmentViewSet
+from .appointments.views import (
+    SlotViewSet, ClinicAppointmentViewSet, MeAppointmentViewSet
+)
 
 router_v1 = DefaultRouter()
 router_v1.register('users', UserViewSet, basename='users_v1')
@@ -26,8 +28,11 @@ router_v1.register(
 )
 router_v1.register(
     r'clinics/(?P<clinic_id>\d+)/appointments',
-    AppointmentViewSet,
-    basename='appointment_v1'
+    ClinicAppointmentViewSet,
+    basename='clinic_appointment_v1'
+)
+router_v1.register(
+    r'users/me/appointments', MeAppointmentViewSet, basename='me_appointment_v1'
 )
 
 urlpatterns = [

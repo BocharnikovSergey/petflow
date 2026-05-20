@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -47,11 +46,13 @@ class ActionReadWriteSerializerMixin:
         if self.action in ('create', 'update', 'partial_update'):
             return self.write_serializer_class
         return self.serializer_classes.get(
-            self.action, self.read_serializer_class or super().get_serializer_class()
+            self.action,
+            self.read_serializer_class or super().get_serializer_class()
         )
 
 class ImageActionMixin:
     """Миксин с общей логикой для работы с изображением."""
+
     image_field = None
 
     def _update_image(self, obj, request):
@@ -76,3 +77,4 @@ class ImageActionMixin:
             {'detail': f'{self.image_field} удалён.'},
             status=status.HTTP_204_NO_CONTENT
         )
+  
