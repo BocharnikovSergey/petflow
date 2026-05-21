@@ -19,12 +19,12 @@ class ClinicFilter(django_filters.FilterSet):
         lookup_expr='icontains'
     )
     min_rating = django_filters.NumberFilter(
-        field_name='avg_rating',
+        field_name='rating',
         lookup_expr='gte'
     )
 
     max_rating = django_filters.NumberFilter(
-        field_name='avg_rating',
+        field_name='rating',
         lookup_expr='lte'
     )
     species = django_filters.NumberFilter(field_name='species__id')
