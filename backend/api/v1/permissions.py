@@ -1,5 +1,5 @@
 from rest_framework.permissions import (
-    BasePermission, SAFE_METHODS, IsAuthenticatedOrReadOnly
+    BasePermission, SAFE_METHODS, IsAuthenticatedOrReadOnly, IsAuthenticated
 )
 
 from .mixins import ClinicAccessMixin
@@ -31,7 +31,7 @@ class IsOwnerOrReadOnly(IsAuthenticatedOrReadOnly):
         return request.method in SAFE_METHODS or obj.user == request.user
 
 
-class IsOwner(BasePermission):
+class IsOwner(IsAuthenticated):
     """
     Разрешает доступ только владельцу объекта User.
     """

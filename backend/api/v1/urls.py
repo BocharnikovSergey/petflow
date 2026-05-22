@@ -15,7 +15,7 @@ router_v1.register('users', UserViewSet, basename='users_v1')
 router_v1.register('species', SpeciesViewSet, basename='species_v1')
 router_v1.register('breeds', BreedViewSet, basename='breeds_v1')
 router_v1.register('pets', PetViewSet, basename='pets_v1')
-router_v1.register('address', AddressViewSet, basename='address_v1')
+router_v1.register('addresses', AddressViewSet, basename='addresses_v1')
 router_v1.register('clinics', ClinicViewSet, basename='clinics_v1')
 router_v1.register(
     r'clinics/(?P<clinic_id>\d+)/reviews',

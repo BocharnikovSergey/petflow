@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from users.models import Role, UserRole
@@ -17,7 +18,9 @@ User = get_user_model()
 class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с регистрацией."""
 
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(
+        write_only=True, validators=[validate_password]
+    )
 
     class Meta:
         model = User
