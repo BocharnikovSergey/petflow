@@ -2,6 +2,7 @@ version: '3.3'
 volumes:
   pg_data:
   media:
+  redis_data:
 
 services:
   db:
@@ -14,6 +15,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    
+  redis:
+    image: redis:7
+    container_name: petflow-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   backend:
     container_name: petflow-back
     env_file: .env
@@ -30,3 +40,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+  
+  celery:
+    container_name: petflow-celery
+    build: ../backend/
+    env_file: .env
+    command: celery -A core worker -l info
+    depends_on:
+      - backend
+      - redis
+      - db

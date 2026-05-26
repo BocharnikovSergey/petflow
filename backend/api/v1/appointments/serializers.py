@@ -61,6 +61,9 @@ class SlotSerializer(serializers.ModelSerializer):
 class SlotShortSerializer(serializers.ModelSerializer):
     """Краткая информация о слоте (только время)."""
 
+    start_time = serializers.TimeField(format="%H:%M")
+    end_time = serializers.TimeField(format="%H:%M")
+
     class Meta:
         model = Slot
         fields = ('start_time', 'end_time')

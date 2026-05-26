@@ -13,6 +13,9 @@ from ..mixins import (
     ClinicMixin, ActionReadWriteSerializerMixin,AppointmentCancelMixin
 )
 from appointments.models import Appointment
+from notifications.tasks import (
+    send_appointment_notifications, schedule_appointment_reminder
+)
 
 
 logger = logging.getLogger(__name__)
@@ -65,7 +68,40 @@ class ClinicAppointmentViewSet(
 
     def perform_create(self, serializer):
         """Создаёт запись с текущей клиникой и пользователем."""
-        serializer.save(clinic=self.get_clinic(), user=self.request.user)
+        appointment = serializer.save(
+            clinic=self.get_clinic(), user=self.request.user
+        )
+        send_appointment_notifications(appointment=appointment)
+        schedule_appointment_reminder(appointment=appointment)
+    
+    def update_appointment(appointment, data):
+
+        old_status = appointment.status
+        old_date = appointment.date
+        old_slot = appointment.slot
+
+        appointment.status = data.get('status', old_status)
+        appointment.date = data.get('date', old_date)
+        appointment.slot = data.get('slot', old_slot)
+
+        appointment.save()
+
+        if (
+            old_status != Appointment.AppointmentStatus.CANCELED
+            and appointment.status == Appointment.AppointmentStatus.CANCELED
+        ):
+            send_appointment_notifications(
+                appointment=appointment,
+                subject='Отмена записи.',
+                notification_type='canceled',
+            )
+        elif old_date != appointment.date or old_slot != appointment.slot:
+            send_appointment_notifications(
+                appointment=appointment,
+                subject='Изменения даты записи в клинику.',
+            )
+            schedule_appointment_reminder(appointment)
+
 
 
 class MeAppointmentViewSet(

@@ -8,6 +8,7 @@ from .utils import constants
 from core.utils.constants import MAX_LEN_PHONE, IMAGE_FORMAT
 from core.utils.validators import max_size_image
 from clinics.models import Clinic
+from core.models import TimeStampedModel
 
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,8 @@ class ProjectUser(AbstractUser):
     username = models.CharField(
         max_length=constants.MAX_LEN_USERNAME, blank=True, null=True
     )
+    email_notifications = models.BooleanField(default=True)
+    push_notifications = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
@@ -102,7 +105,7 @@ class ProjectUser(AbstractUser):
         return self.roles.filter(clinic=clinic).exists()
 
 
-class Role(models.Model):
+class Role(TimeStampedModel):
     """Роль пользователя."""
 
     name = models.CharField(
@@ -125,7 +128,7 @@ class Role(models.Model):
         return f'{self.__class__.__name__}(id={self.id}, name={self.name})'
 
 
-class UserRole(models.Model):
+class UserRole(TimeStampedModel):
     """Связь между пользователем и ролью."""
 
     user = models.ForeignKey(

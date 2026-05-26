@@ -52,6 +52,14 @@ class Slot(TimeStampedModel):
 class Appointment(TimeStampedModel):
     """Модель записи пользователя с питомцем в клинику."""
 
+    class AppointmentStatus(models.TextChoices):
+        """Статусы записи."""
+
+        PENDING = ('pending', 'Ожидает подтверждения')
+        CONFIRMED = ('confirmed', 'Подтверждено')
+        CANCELED = ('canceled', 'Отменено')
+        COMPLETED = ('completed', 'Завершено')
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

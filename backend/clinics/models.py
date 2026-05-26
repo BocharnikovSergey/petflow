@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.core.validators import FileExtensionValidator
 
 from core.models import TimeStampedModel
@@ -89,6 +90,14 @@ class Clinic(TimeStampedModel):
         Species,
         related_name='clinics',
         verbose_name='Специализация'
+    )
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='clinics',
+        verbose_name='Владелец',
+        null=True, blank=True,
     )
 
     class Meta:

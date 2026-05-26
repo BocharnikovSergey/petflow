@@ -1,0 +1,9 @@
+from datetime import timedelta
+
+MAX_LEN_TITLE = 255
+MAX_LEN_TYPE = 10
+MAX_LEN_STATUS = 20
+MAX_LEN_TOKEN = 512
+MAX_LEN_PLATFORM = 20
+
+REMINDER_BEFORE_APPOINTMENT = timedelta(days=1)

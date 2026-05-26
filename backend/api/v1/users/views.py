@@ -13,6 +13,7 @@ from .serializers import (
 )
 from ..permissions import IsOwner, IsAdminOrReadOnly
 from ..mixins import ActionReadWriteSerializerMixin, ImageActionMixin
+from notifications.models import UserNotificationSettings
 
 
 User = get_user_model()
@@ -22,6 +23,11 @@ class SignUpView(generics.CreateAPIView):
     """Представление для регистрации нового пользователя."""
     serializer_class = SignUpSerializer
     permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        if not hasattr(user, 'notification_settings'):
+            UserNotificationSettings.objects.create(user=user)
 
 
 class LoginView(generics.GenericAPIView):
@@ -39,6 +45,9 @@ class LoginView(generics.GenericAPIView):
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
         token = RefreshToken.for_user(user)
+
+        if not hasattr(user, 'notification_settings'):
+            UserNotificationSettings.objects.create(user=user)
         
         return Response(
             TokenResponseSerializer({

@@ -9,6 +9,7 @@ from .reviews.views import ReviewViewSet
 from .appointments.views import (
     SlotViewSet, ClinicAppointmentViewSet, MeAppointmentViewSet
 )
+from .notifications.views import SaveFCMTokenView, NotificationSettingsView
 
 router_v1 = DefaultRouter()
 router_v1.register('users', UserViewSet, basename='users_v1')
@@ -39,5 +40,11 @@ urlpatterns = [
     *[path(url, view, name=name) for url, view, name in get_docs_urls('v1')],
     path('auth/signup/', SignUpView.as_view(), name='signup_v1'),
     path('auth/login/', LoginView.as_view(), name='login_v1'),
+    path('fcm-token/', SaveFCMTokenView.as_view(), name='fcm_token_v1'),
+    path(
+        'notification_settings/',
+        NotificationSettingsView.as_view(),
+        name='notification_settings_v1'
+    ),
     path('', include(router_v1.urls)),
 ]

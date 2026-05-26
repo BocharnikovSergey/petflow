@@ -63,4 +63,3 @@ class ClinicViewSet(
         Удаление логотипа клиники. Убирает ссылку на файл и удаляет его с диска.
         """
         return self._delete_image(self.get_object())
-
