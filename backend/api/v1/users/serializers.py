@@ -96,6 +96,11 @@ class UserSerializer(serializers.ModelSerializer):
     
     def validate_phone(self, phone):
         return validators.validate_phone(phone)
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        logger.info(data["avatar"])
+        return data
 
 
 class UserShortSerializer(serializers.ModelSerializer):

@@ -46,7 +46,9 @@ class ActionReadWriteSerializerMixin:
 
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):
-            return self.write_serializer_class or super().get_serializer_class()
+            return self.write_serializer_class or self.serializer_classes.get(
+                self.action or super().get_serializer_class()
+        )
         return self.serializer_classes.get(
             self.action,
             self.read_serializer_class or super().get_serializer_class()

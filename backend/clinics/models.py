@@ -4,10 +4,8 @@ from django.core.validators import FileExtensionValidator
 
 from core.models import TimeStampedModel
 from .utils import constants
-from core.utils.constants import MAX_LEN_PHONE, IMAGE_FORMAT
-from core.utils.validators import max_size_image
-
-from pets.models import Species
+from core.utils.constants import MAX_LEN_PHONE, IMAGE_FORMAT, FILE_FORMAT
+from core.utils.validators import max_size_image, max_size_file
 
 
 class Address(TimeStampedModel):
@@ -87,7 +85,7 @@ class Clinic(TimeStampedModel):
     )
 
     species = models.ManyToManyField(
-        Species,
+        'pets.Species',
         related_name='clinics',
         verbose_name='Специализация'
     )
@@ -120,3 +118,37 @@ class Clinic(TimeStampedModel):
             f'(id={self.id}, '
             f'name={self.name}, address={self.address.full_address})'
         )
+
+
+class Visit(TimeStampedModel):
+    """Модель для посещения ветеринара."""
+
+    pet = models.ForeignKey(
+        'pets.Pet',
+        on_delete=models.CASCADE,
+        related_name='visits'
+    )
+    clinic = models.ForeignKey(
+        'Clinic',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='visits'
+    )
+    visit_date = models.DateField(verbose_name='Дата посещения')
+    title = models.CharField(
+        max_length=constants.MAX_LEN_TITLE_VISIT,
+        verbose_name='Заголовок посещения.'
+    )
+    complaint = models.TextField(blank=True, null=True, verbose_name='Жалобы')
+    diagnosis = models.TextField(blank=True, null=True, verbose_name='Диагноз')
+    recommendation = models.TextField(
+        blank=True, null=True, verbose_name='Рекомендации'
+    )
+    attachments = models.FileField(
+        upload_to='visits/', blank=True, null=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=FILE_FORMAT),
+            max_size_file
+        ]
+    )
+

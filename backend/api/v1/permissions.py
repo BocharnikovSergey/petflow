@@ -1,8 +1,9 @@
 from rest_framework.permissions import (
-    BasePermission, SAFE_METHODS, IsAuthenticatedOrReadOnly
+    BasePermission, SAFE_METHODS, IsAuthenticatedOrReadOnly, IsAuthenticated
 )
 
 from .mixins import ClinicAccessMixin
+from pets.models import Pet
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -115,3 +116,18 @@ class IsClinicStaffOrAdminOrReadOnly(BasePermission, ClinicAccessMixin):
                 and self.is_clinic_allowed(user, obj)
             )
         )
+
+
+class IsOwnerReadOrClinicCreatedVisit(IsAuthenticated):
+    """Права доступа для визитов.
+    
+    Создание и редактирование доступно владельцу клиники,
+    а чтение доступно владельцу питомца.
+    """
+    
+    def has_object_permission(self, request, view, obj):
+
+        if request.method in SAFE_METHODS:
+            return obj.pet.owner == request.user
+        if hasattr(request.user, 'clinic') and request.user.clinic:
+            return request.user.clinic == obj.clinic

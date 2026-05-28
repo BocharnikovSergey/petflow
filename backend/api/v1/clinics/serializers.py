@@ -1,12 +1,13 @@
 import logging
 
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from clinics.models import Clinic, Address
+from clinics.models import Clinic, Address, Visit
 from .. import validators
-from ..serializers import BaseImageSerializer
-from ..pets.serializers import SpeciesSerializer
+from ..serializers import BaseImageSerializer, BaseFileSerializer
+from ..pets.serializers import SpeciesSerializer, PetShortSerializer
 from pets.models import Species
 
 
@@ -93,7 +94,6 @@ class ClinicWriteSerializer(serializers.ModelSerializer):
         queryset=Species.objects.all()
     )
 
-
     class Meta:
         model = Clinic
         fields = (
@@ -115,3 +115,63 @@ class LogoSerializer(BaseImageSerializer):
     class Meta:
         model = Clinic
         fields = ('logo',)
+
+
+class VisitReadSerializer(serializers.ModelSerializer):
+    """Сериализатор для просмотра визита."""
+
+    clinic = ClinicShortSerializer(read_only=True)
+    pet = PetShortSerializer(read_only=True)
+
+    class Meta:
+        model = Visit
+        fields = (
+            'id', 'pet', 'clinic', 'visit_date', 'title', 'complaint',
+            'diagnosis', 'recommendation', 'attachments',
+        )
+        read_only_fields = fields
+
+
+class VisitWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания/редактирования визита."""
+
+    class Meta:
+        model = Visit
+        fields = (
+            'id', 'visit_date', 'title', 'complaint', 'diagnosis',
+            'recommendation', 'clinic'
+        )
+    
+    def validate_clinic(self, clinic):
+        request = self.context.get('request')
+        user = request.user
+
+        if not Clinic.objects.filter(
+            owner=user,
+        ).exists():
+            raise serializers.ValidationError(
+                """Клиника не пренадлежит пользователю."""
+            )
+        return clinic
+
+    def validate_visit_date(self, visit_date):
+        if visit_date > timezone.now().date():
+            raise serializers.ValidationError(
+                "Дата посещения не может быть в будещем"
+            )
+
+        return visit_date
+        
+    
+    def to_representation(self, instance):
+        return VisitReadSerializer(instance, context=self.context).data
+
+
+class VisitAttachmentSerializer(BaseFileSerializer):
+    """Сериализатор для поля загругки файла."""
+
+    file_field = 'attachments'
+
+    class Meta:
+        model = Visit
+        fields = ('attachments',)

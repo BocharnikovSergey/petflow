@@ -1,15 +1,25 @@
+import uuid
+import os
+
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets,filters
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from clinics.models import Address, Clinic
+from clinics.models import Address, Clinic, Visit
+from pets.models import Pet
 from .serializers import (
     AddressSerializer, ClinicReadSerializer, ClinicWriteSerializer,
-    LogoSerializer
+    LogoSerializer, VisitReadSerializer, VisitWriteSerializer,
+    VisitAttachmentSerializer
 )
 from .filters import ClinicFilter
-from ..permissions import IsAdminOrReadOnly, IsClinicStaffOrAdminOrReadOnly
+from ..permissions import (
+    IsAdminOrReadOnly, IsClinicStaffOrAdminOrReadOnly, IsOwnerReadOrClinicCreatedVisit
+)
 from ..mixins import ActionReadWriteSerializerMixin, ImageActionMixin
 
 
@@ -63,3 +73,90 @@ class ClinicViewSet(
         Удаление логотипа клиники. Убирает ссылку на файл и удаляет его с диска.
         """
         return self._delete_image(self.get_object())
+
+
+class VisitViewSet(ActionReadWriteSerializerMixin,viewsets.ModelViewSet):
+
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = [IsOwnerReadOrClinicCreatedVisit]
+    read_serializer_class = VisitReadSerializer
+    write_serializer_class = VisitWriteSerializer
+
+    def get_queryset(self):
+        pet_id = self.kwargs.get('pet_pk')
+        user = self.request.user
+        queryset = Visit.objects.select_related('clinic', 'pet',).filter(
+            pet_id=pet_id
+        )
+        if hasattr(user, 'pets'):
+            return queryset.filter(pet__owner=user)
+        elif hasattr(user, 'clinic'):
+            return queryset.filter(clinic=user.clinic)
+        return queryset.none()
+    
+    def perform_create(self, serializer):
+        pet = get_object_or_404(
+            Pet,
+            id=self.kwargs['pet_pk']
+        )
+
+        serializer.save(
+            pet=pet,
+        )
+    
+    @action(
+        detail=True, 
+        methods=['post'], 
+        url_path='upload-attachment',
+        serializer_class=VisitAttachmentSerializer,
+        permission_classes=(IsOwnerReadOrClinicCreatedVisit,)
+    )
+    def upload_attachment(self, request, pet_pk=None, pk=None):
+        """
+        Загрузка файла для конкретного визита.
+        """
+        visit = self.get_object()
+        serializer = self.get_serializer(
+            visit,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        file = serializer.validated_data['attachments']
+
+        file_extension = os.path.splitext(file.name)[1]
+        new_filename = f'visit_{visit.id}_{uuid.uuid4().hex}{file_extension}'
+        
+        visit.attachments.save(new_filename, file, save=True)
+        read_serializer = self.read_serializer_class(
+            visit, context={'request': request}
+        )
+        return Response(read_serializer.data, status=status.HTTP_200_OK)
+    
+    @action(
+        detail=True,
+        methods=['get'],
+        url_path='download-attachment',
+        permission_classes=(IsOwnerReadOrClinicCreatedVisit,)
+    )
+    def download_attachment(self, request, pet_pk=None, pk=None):
+        """
+        Скачать файл визита.
+        """
+        visit = self.get_object()
+        if not visit.attachments:
+            return Response(
+                {'detail': 'Файл не найден.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return FileResponse(
+            visit.attachments.open('rb'),
+            as_attachment=True,
+            filename=os.path.basename(
+                visit.attachments.name
+            )
+        )
+            
+
+

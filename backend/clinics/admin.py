@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Address, Clinic
+from .models import Address, Clinic, Visit
 from .utils import constants
 
 
@@ -55,3 +55,18 @@ class ClinicAdmin(ClinicEditRolesMixin, admin.ModelAdmin):
             user_roles__user=request.user,
             user_roles__role__name__in=constants.CLINIC_EDIT_ROLES
         ).distinct()
+
+
+@admin.register(Visit)
+class VisitAdmin(ClinicEditRolesMixin, admin.ModelAdmin):
+    """
+    Админ-панель для управления посещениями в клинике.
+
+    Доступ к данным может быть ограничен
+    по принадлежности пользователя к клинике.
+    """
+
+    list_display = ('id', 'pet', 'clinic', 'visit_date', 'title')
+    list_filter = ('clinic',)
+    search_fields = ('pet__name', 'title',)
+    raw_id_fields = ('pet', 'clinic')

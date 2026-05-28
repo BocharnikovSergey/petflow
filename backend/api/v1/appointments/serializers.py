@@ -106,14 +106,6 @@ class AppointmentWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(message)
         return date
 
-    # def validate_slot(self, slot):
-    #     clinic = self.context['view'].kwargs['clinic_id']
-    #     if slot.clinic.id != int(clinic):
-    #         message = 'Слот не принадлежит клинике.'
-    #         logger.warning(message)
-    #         raise serializers.ValidationError(message)
-    #     return slot
-
     def validate(self, attrs):
         """Проверяет, что дата/время не в прошлом и слот свободен."""
 

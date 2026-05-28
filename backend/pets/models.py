@@ -116,3 +116,71 @@ class Pet(TimeStampedModel):
 
     def __str__(self):
         return f'{self.name} ({self.owner.full_name})'
+
+
+class MedicalCard(TimeStampedModel):
+    """Модель мед.карты для питомца."""
+
+    pet = models.OneToOneField(
+        Pet,
+        on_delete=models.CASCADE,
+        related_name='medical_card',
+    )
+    notes = models.TextField(blank=True, null=True, verbose_name='Заметки')
+    allergies = models.TextField(blank=True, null=True, verbose_name='Аллергии')
+
+
+class ConditionStatus(models.TextChoices):
+    """Статусы для заболеваний."""
+
+    ACTIVE = 'active', 'Активное'
+    CONTROLLED = 'controlled', 'Контролируемое'
+    REMMISSION = 'remission', 'Реммися'
+
+
+class ChronicCondition(TimeStampedModel):
+    """Модель хронических заболеваний питомца."""
+
+    medical_card = models.ForeignKey(
+        MedicalCard,
+        on_delete=models.CASCADE,
+        related_name='conditions'
+    )
+    name = models.CharField(
+        max_length=constants.MAX_LEN_NAME_CONDITION,
+        verbose_name='Название заболевания'
+    )
+    description = models.TextField(
+        blank=True, null=True, verbose_name='Описание заболевания'
+    )
+    status = models.CharField(
+        max_length=constants.MAX_LEN_CONTIDION_STATUS,
+        choices=ConditionStatus.choices,
+        default=ConditionStatus.ACTIVE,
+        verbose_name='Статус записи'
+    )
+
+
+class Vaccination(TimeStampedModel):
+    """Модель для вакцинаций."""
+
+    medical_card = models.ForeignKey(
+        MedicalCard,
+        on_delete=models.CASCADE,
+        related_name='vaccinations'
+    )
+    visit = models.ForeignKey(
+        'clinics.Visit',
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        related_name='vaccinations'
+    )
+    name = models.CharField(
+        max_length=constants.MAX_LEN_NAME_VACCINATION,
+        verbose_name='Название вакцинации'
+    )
+    vaccinated_at = models.DateField(verbose_name='Дата вакцинации')
+    expires_at = models.DateField(
+        null=True, blank=True, verbose_name='Срок действия'
+    )
+    notes = models.TextField(blank=True, null=True)
