@@ -91,7 +91,7 @@ class ClinicWriteSerializer(serializers.ModelSerializer):
     )
     species = serializers.PrimaryKeyRelatedField(
         many=True,
-        queryset=Species.objects.all()
+        queryset=Species.objects.all(), required=False,
     )
 
     class Meta:
@@ -99,7 +99,7 @@ class ClinicWriteSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'address', 'phone', 'email', 'description', 'species'
         )
-    
+
     def to_representation(self, instance):
         return ClinicReadSerializer(instance, context=self.context).data
     
@@ -154,6 +154,7 @@ class VisitWriteSerializer(serializers.ModelSerializer):
             )
         return clinic
 
+
     def validate_visit_date(self, visit_date):
         if visit_date > timezone.now().date():
             raise serializers.ValidationError(
@@ -175,3 +176,4 @@ class VisitAttachmentSerializer(BaseFileSerializer):
     class Meta:
         model = Visit
         fields = ('attachments',)
+

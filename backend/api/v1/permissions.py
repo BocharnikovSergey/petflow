@@ -80,7 +80,16 @@ class IsOwnerOrClinicStaff(BasePermission):
             obj.user == user
             or obj.clinic.user_roles.filter(user=user).exists()
         )
-   
+
+
+class IsOwnerClinic(BasePermission):
+    """Владелец клиники может редкатировать."""
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        return (
+            user and user.is_authenticated and obj.clinic in user.clinics.all()
+        )
 
 class IsClinicMemberOrAdminOrReadOnly(BasePermission, ClinicAccessMixin):
     """
@@ -107,12 +116,23 @@ class IsClinicStaffOrAdminOrReadOnly(BasePermission, ClinicAccessMixin):
     для всех остальный только чтение. Для клиники.
     """
 
+    def has_permission(self, request, view):
+        return request.method in SAFE_METHODS or (
+            request.user
+            and request.user.is_authenticated
+            or (
+                request.user.is_superuser
+                or request.user.roles.first().role in {'admin', 'owner'}
+            )
+        )
+
     def has_object_permission(self, request, view, obj):
+        print(obj, 'asdlknsdvnsdkvnsdkjvndskjvn')
         user = request.user
         return (
             request.method in SAFE_METHODS
             or (
-                user and user.is_authenticated
+                user and user.is_authenticated and obj.owner == user
                 and self.is_clinic_allowed(user, obj)
             )
         )
@@ -126,8 +146,29 @@ class IsOwnerReadOrClinicCreatedVisit(IsAuthenticated):
     """
     
     def has_object_permission(self, request, view, obj):
+        return request.method in SAFE_METHODS or (
+            hasattr(request.user, 'clinic')
+            and request.user.clinic
+            and request.user.clinic == obj.clinic
+        )
 
-        if request.method in SAFE_METHODS:
-            return obj.pet.owner == request.user
-        if hasattr(request.user, 'clinic') and request.user.clinic:
-            return request.user.clinic == obj.clinic
+class IsOwnerClinicAndAdminCreatedVetOrReadOnly(BasePermission):
+    """
+    Только владелец клиники и супрерпользователь может создавать ветеринаров,
+    остальным только чтение
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        clinic_id = view.kwargs.get('clinic_id')
+        return request.method in SAFE_METHODS or (
+            user and user.is_authenticated 
+            and user.clinics.filter(id=clinic_id).exists()
+        )
+    
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in SAFE_METHODS
+            or request.user == obj.clinic.owner
+            or request.user.is_superuser
+        )

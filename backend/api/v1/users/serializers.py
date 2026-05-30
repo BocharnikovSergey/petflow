@@ -3,10 +3,12 @@ import logging
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from users.models import Role, UserRole
+from users.models import Role, UserRole, VetProfile
+from clinics.models import Clinic
 from .. import validators
 from ..serializers import BaseImageSerializer
 from ..pets.serializers import PetShortSerializer
+from ..clinics.serializers import ClinicShortSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -47,6 +49,19 @@ class SignUpSerializer(serializers.ModelSerializer):
         return user
 
 
+class SighUpOwnerClinicSerializer(SignUpSerializer):
+    """Сериализатор для работы с регистрацией владельца клиник."""
+
+    def create(self, validated_data):
+        """
+        Создаёт нового пользователя и автоматически назначает ему роль 'owner'
+        """
+        user = User.objects.create_user(**validated_data, username=None)
+        role, _ = Role.objects.get_or_create(name='owner')
+        UserRole.objects.create(user=user, role=role)
+        return user
+
+
 class LoginSerializer(serializers.Serializer):
     """Cериализатор для работы с токеном."""
 
@@ -70,6 +85,7 @@ class TokenResponseSerializer(serializers.Serializer):
 
     access = serializers.CharField()
     refresh = serializers.CharField()
+    role = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -96,10 +112,9 @@ class UserSerializer(serializers.ModelSerializer):
     
     def validate_phone(self, phone):
         return validators.validate_phone(phone)
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        logger.info(data["avatar"])
         return data
 
 
@@ -118,4 +133,63 @@ class AvatarSerializer(BaseImageSerializer):
 
     class Meta:
         model = User
+        fields = ('avatar',)
+
+
+class VetProfileReadSerializer(serializers.ModelSerializer):
+
+    clinic = ClinicShortSerializer(read_only=True)
+
+    class Meta:
+        model = VetProfile
+        fields = (
+            'id', 'clinic', 'email', 'full_name', 'specialization', 'phone',
+            'bio',
+        )
+
+
+class VetProfileWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = VetProfile
+        fields = (
+            'id', 'email', 'first_name', 'last_name',
+            'specialization', 'phone', 'bio', 
+        )
+
+    def validate_clinic(self, clinic):
+        request = self.context.get('request')
+        user = request.user
+
+        if not Clinic.objects.filter(
+            owner=user,
+        ).exists():
+            raise serializers.ValidationError(
+                """Клиника не пренадлежит пользователю."""
+            )
+        return clinic
+
+    def validate_first_name(self, name):
+        return validators.validation_name(name)
+    
+    def validate_last_name(self, name):
+        return validators.validation_name(name)
+    
+    def validate_phone(self, phone):
+        return validators.validate_phone(phone)
+    
+    def validate_specialization(self, specialization):
+        return validators.validation_name(specialization)
+
+    def to_representation(self, instance):
+        return VetProfileReadSerializer(instance, context=self.context).data
+
+
+class AvatarVetSerializer(BaseImageSerializer):
+    """Сериализатор для поля аватара ветеринара."""
+
+    image_field = 'avatar'
+
+    class Meta:
+        model = VetProfile
         fields = ('avatar',)

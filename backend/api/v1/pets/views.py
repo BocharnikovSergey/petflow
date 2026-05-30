@@ -49,7 +49,6 @@ class BreedViewSet(ActionReadWriteSerializerMixin, viewsets.ModelViewSet):
     write_serializer_class = BreedWriteSerializer
 
 
-
 class PetViewSet(
     ActionReadWriteSerializerMixin, ImageActionMixin, viewsets.ModelViewSet
 ):

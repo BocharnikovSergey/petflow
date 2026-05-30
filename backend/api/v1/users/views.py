@@ -1,4 +1,3 @@
-
 from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, generics, viewsets
@@ -9,11 +8,16 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
     AvatarSerializer, SignUpSerializer, LoginSerializer,
-    TokenResponseSerializer, UserSerializer
+    TokenResponseSerializer, UserSerializer, VetProfileReadSerializer,
+    VetProfileWriteSerializer, SighUpOwnerClinicSerializer
 )
-from ..permissions import IsOwner, IsAdminOrReadOnly
+from ..permissions import (
+    IsOwner, IsAdminOrReadOnly, IsOwnerClinicAndAdminCreatedVetOrReadOnly,
+    IsOwnerClinic
+)
 from ..mixins import ActionReadWriteSerializerMixin, ImageActionMixin
 from notifications.models import UserNotificationSettings
+from users.models import VetProfile
 
 
 User = get_user_model()
@@ -22,6 +26,16 @@ User = get_user_model()
 class SignUpView(generics.CreateAPIView):
     """Представление для регистрации нового пользователя."""
     serializer_class = SignUpSerializer
+    permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        if not hasattr(user, 'notification_settings'):
+            UserNotificationSettings.objects.create(user=user)
+
+class SighUpOwnerClinicView(generics.CreateAPIView):
+    """Прдеставление для регистрации нового владельца клиник."""
+    serializer_class = SighUpOwnerClinicSerializer
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
@@ -45,6 +59,7 @@ class LoginView(generics.GenericAPIView):
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
         token = RefreshToken.for_user(user)
+        user_role = user.roles.first()
 
         if not hasattr(user, 'notification_settings'):
             UserNotificationSettings.objects.create(user=user)
@@ -52,7 +67,8 @@ class LoginView(generics.GenericAPIView):
         return Response(
             TokenResponseSerializer({
                 'access': str(token.access_token),
-                'refresh': str(token)
+                'refresh': str(token),
+                'role': user_role.role.name if user_role else 'user'
             }).data,
             status=status.HTTP_200_OK
         )
@@ -120,3 +136,56 @@ class UserViewSet(
         Убирает ссылку на файл и удаляет его с диска.
         """
         return self._delete_image(request.user)
+
+
+
+class VetProfileViewSet(
+    ActionReadWriteSerializerMixin, ImageActionMixin, viewsets.ModelViewSet
+):
+    """ViewSet для управления ветеринарами."""
+
+    queryset = VetProfile.objects.select_related('clinic').all()
+    permission_classes = [IsOwnerClinicAndAdminCreatedVetOrReadOnly]
+    read_serializer_class = VetProfileReadSerializer
+    write_serializer_class = VetProfileWriteSerializer
+    http_method_names = ['get','post', 'patch', 'delete']
+    image_field = 'avatar'
+    serializer_classes = {'avatar': AvatarSerializer}
+
+    def get_queryset(self):
+        """
+        Фильтрация queryset в зависимости от роли пользователя.
+        """
+        return (
+            VetProfile.objects.select_related('clinic').filter(
+                clinic_id=self.kwargs['clinic_id']
+            )
+        )
+
+    def perform_create(self, serializer):
+        """Создание ветеринара."""
+        serializer.save(
+            clinic_id=self.kwargs.get('clinic_id')
+        )
+
+    @action(
+        detail=True,
+        methods=['patch'],
+        permission_classes=(IsOwnerClinic,),
+        url_path='avatar'
+    )
+    def avatar(self, request,  *args, **kwargs):
+        """
+        Обновление аватара пользователя.
+        Ожидает multipart/form-data с полем 'avatar'.
+        """
+        print(self.get_object())
+        return self._update_image(self.get_object(), request)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request,  *args, **kwargs):
+        """
+        Удаление аватара ветеринара.
+        Убирает ссылку на файл и удаляет его с диска.
+        """
+        return self._delete_image(self.get_object())

@@ -3,7 +3,10 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import NestedDefaultRouter
 
 from core.docs_urls import get_docs_urls
-from .users.views import SignUpView, LoginView, UserViewSet
+from .users.views import (
+    SignUpView, LoginView, UserViewSet, VetProfileViewSet, SighUpOwnerClinicView,
+    VetProfileViewSet,
+)
 from .pets.views import (
     SpeciesViewSet, BreedViewSet, PetViewSet, ChronicConditionViewSet,
     VaccinationViewSet
@@ -39,6 +42,11 @@ router_v1.register(
 router_v1.register(
     r'users/me/appointments', MeAppointmentViewSet, basename='me_appointment_v1'
 )
+router_v1.register(
+    r'clinics/(?P<clinic_id>\d+)/vets',
+    VetProfileViewSet,
+    basename='vets_v1'
+)
 
 pets_router_v1 = NestedDefaultRouter(router_v1, r'pets', lookup='pet')
 pets_router_v1.register(r'visits', VisitViewSet, basename='pet-visits')
@@ -53,6 +61,11 @@ pets_router_v1.register(
 urlpatterns = [
     *[path(url, view, name=name) for url, view, name in get_docs_urls('v1')],
     path('auth/signup/', SignUpView.as_view(), name='signup_v1'),
+    path(
+        'auth/signup_owner_clinic/',
+        SighUpOwnerClinicView.as_view(),
+        name='signup_owner_clinic_v1'
+    ),
     path('auth/login/', LoginView.as_view(), name='login_v1'),
     path('fcm-token/', SaveFCMTokenView.as_view(), name='fcm_token_v1'),
     path(

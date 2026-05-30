@@ -30,8 +30,8 @@ class ClinicAccessMixin:
         return (
             user.is_superuser
             or user.has_any_role('admin')
-            or user.is_clinic_member(clinic)
-        )   
+            or user.is_clinic_member(clinic) or clinic.owner == user
+        )
 
 
 class ActionReadWriteSerializerMixin:

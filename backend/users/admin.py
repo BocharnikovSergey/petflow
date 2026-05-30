@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import ProjectUser, Role, UserRole
+from .models import ProjectUser, Role, UserRole, VetProfile
+from clinics.models import Clinic
 from .utils import constants
 
 
@@ -73,3 +74,15 @@ class UserRoleAdmin(admin.ModelAdmin):
     search_fields = ('user__email', 'user__fullname', 'clinic__name')
     autocomplete_fields = ('user', 'role', 'clinic')
     list_select_related = ('user', 'clinic')
+
+
+
+@admin.register(VetProfile)
+class DoctorAdmin(admin.ModelAdmin):
+    """Админ-панель для ветеринаров"""
+
+    list_display = (
+        'id', 'first_name', 'last_name', 'specialization', 'clinic'
+    )
+    search_fields = ('first_name', 'last_name', 'specialization',) 
+    list_filter = ( 'clinic', 'is_active')

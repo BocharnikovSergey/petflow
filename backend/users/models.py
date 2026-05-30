@@ -164,3 +164,65 @@ class UserRole(TimeStampedModel):
                 name='unique_user_role_clinic'
             )
         ]
+
+
+class VetProfile(TimeStampedModel):
+    """Модель для ветеринаров."""
+
+    clinic = models.ForeignKey(
+        Clinic,
+        on_delete=models.CASCADE,
+        related_name='vets',
+        verbose_name='Клиника'
+        )
+
+    email = models.EmailField(
+        unique=True,
+        blank=True, null=True,
+        verbose_name='Адрес электронной почты',
+    )
+    first_name = models.CharField(
+        max_length=constants.MAX_LEN_NAME, verbose_name='Имя',
+    )
+    last_name = models.CharField(
+        max_length=constants.MAX_LEN_NAME, verbose_name='Фамилия',
+    )
+
+    specialization = models.CharField(
+        blank=True, null=True,
+        max_length=constants.MAX_LEN_SPECIALIZATION,
+        verbose_name='Специализация'
+    )
+
+    avatar = models.ImageField(
+        upload_to=constants.UPLOAD_TO_VETS,
+        blank=True, null=True,
+        verbose_name='Аватар',
+        validators=(
+            FileExtensionValidator(IMAGE_FORMAT), max_size_image
+        ),
+    )
+    phone = models.CharField(
+        max_length=MAX_LEN_PHONE,
+        blank=True, null=True, verbose_name='Телефон'
+    )
+    bio = models.TextField(blank=True, null=True, verbose_name='О себе')
+
+    class Meta:
+        verbose_name = 'Ветеринар'
+        verbose_name_plural = 'Ветеринары'
+        ordering = ('email',)
+
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'.strip()
+
+    def __str__(self):
+        return self.full_name
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}'
+            f'(id={self.id}, '
+            f'first_name={self.first_name}, last_name={self.last_name})'
+        )
