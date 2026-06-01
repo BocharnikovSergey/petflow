@@ -3,7 +3,6 @@ from rest_framework.permissions import (
 )
 
 from .mixins import ClinicAccessMixin
-from pets.models import Pet
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -127,7 +126,6 @@ class IsClinicStaffOrAdminOrReadOnly(BasePermission, ClinicAccessMixin):
         )
 
     def has_object_permission(self, request, view, obj):
-        print(obj, 'asdlknsdvnsdkvnsdkjvndskjvn')
         user = request.user
         return (
             request.method in SAFE_METHODS

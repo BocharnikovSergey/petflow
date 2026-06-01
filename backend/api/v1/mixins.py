@@ -4,7 +4,9 @@ from rest_framework.response import Response
 
 from appointments.models import AppointmentStatus
 from clinics.models import Clinic
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 class ClinicMixin:
@@ -45,6 +47,9 @@ class ActionReadWriteSerializerMixin:
     serializer_classes = {}
 
     def get_serializer_class(self):
+        if self.action in self.serializer_classes:
+
+            return self.serializer_classes.get(self.action)
         if self.action in ('create', 'update', 'partial_update'):
             return self.write_serializer_class or self.serializer_classes.get(
                 self.action or super().get_serializer_class()

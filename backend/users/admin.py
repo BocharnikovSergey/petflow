@@ -55,7 +55,9 @@ class RoleAdmin(admin.ModelAdmin):
 
     def short_description(self, obj):
         return (
-            obj.description[:constants.LEN_SHORT_DESC]
+            '...' 
+            if not obj.description
+            else obj.description[:constants.LEN_SHORT_DESC]
             + '...' * (len(obj.description) > constants.LEN_SHORT_DESC)
         )
 

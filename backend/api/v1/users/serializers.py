@@ -144,7 +144,7 @@ class VetProfileReadSerializer(serializers.ModelSerializer):
         model = VetProfile
         fields = (
             'id', 'clinic', 'email', 'full_name', 'specialization', 'phone',
-            'bio',
+            'bio', 'avatar'
         )
 
 
@@ -154,7 +154,7 @@ class VetProfileWriteSerializer(serializers.ModelSerializer):
         model = VetProfile
         fields = (
             'id', 'email', 'first_name', 'last_name',
-            'specialization', 'phone', 'bio', 
+            'specialization', 'phone', 'bio',
         )
 
     def validate_clinic(self, clinic):

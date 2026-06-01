@@ -87,6 +87,7 @@ class Clinic(TimeStampedModel):
     species = models.ManyToManyField(
         'pets.Species',
         related_name='clinics',
+        null=True, blank=True,
         verbose_name='Специализация'
     )
 
