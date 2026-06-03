@@ -65,7 +65,7 @@ class ClinicViewSet(
         methods=['get'],
         permission_classes=(IsClinicStaffOrAdminOrReadOnly,)
     )
-    def me(self, request, pk=None):
+    def my(self, request, pk=None):
         """Получение всех клинк владельцаю."""
         queryset = self.get_queryset().filter(owner=request.user)
         serializer = self.get_serializer(queryset, many=True)
