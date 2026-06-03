@@ -5,7 +5,7 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets,filters
+from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -59,6 +59,18 @@ class ClinicViewSet(
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+    
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=(IsClinicStaffOrAdminOrReadOnly,)
+    )
+    def me(self, request, pk=None):
+        """Получение всех клинк владельцаю."""
+        queryset = self.get_queryset().filter(owner=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
 
     @action(
         detail=True,
@@ -78,6 +90,8 @@ class ClinicViewSet(
         Удаление логотипа клиники. Убирает ссылку на файл и удаляет его с диска.
         """
         return self._delete_image(self.get_object())
+    
+    
 
 
 class VisitViewSet(ActionReadWriteSerializerMixin,viewsets.ModelViewSet):
