@@ -53,14 +53,12 @@ class IsPetOwnerOrClinicReadOnly(BasePermission):
         user = request.user
         return (
             (user and user.is_authenticated and (
-                obj.owner == user or user.is_superuser
-            ))
-            or (
-                request.method in SAFE_METHODS
-                and obj.appointments.filter(
+                obj.owner == user 
+                or user.is_superuser
+                or obj.appointments.filter(
                     clinic__user_roles__user=user
                 ).exists()
-            )
+            ))
         )
 
 class IsPetOwner(BasePermission):
