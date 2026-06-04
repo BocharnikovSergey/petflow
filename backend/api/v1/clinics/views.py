@@ -23,7 +23,7 @@ from ..permissions import (
 from ..mixins import ActionReadWriteSerializerMixin, ImageActionMixin
 import logging
 
-loggrt = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class AddressViewSet(viewsets.ModelViewSet):
     """ViewSet для управления адресами."""
@@ -66,7 +66,7 @@ class ClinicViewSet(
         permission_classes=(IsClinicStaffOrAdminOrReadOnly,)
     )
     def my(self, request, pk=None):
-        """Получение всех клинк владельцаю."""
+        """Получение всех клиник владельца."""
         queryset = self.get_queryset().filter(owner=request.user)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -107,10 +107,10 @@ class VisitViewSet(ActionReadWriteSerializerMixin,viewsets.ModelViewSet):
         queryset = Visit.objects.select_related('clinic', 'pet',).filter(
             pet_id=pet_id
         )
-        if hasattr(user, 'pets'):
-            return queryset.filter(pet__owner=user)
-        elif hasattr(user, 'clinic'):
-            return queryset.filter(clinic=user.clinic)
+        if hasattr(user, 'pets') and user.pets.filter(id=pet_id).exists():
+            return queryset
+        if hasattr(user, 'clinics') and user.clinics.exists():
+            return queryset.filter(clinic__in=user.clinics.all())
         return queryset.none()
     
     def perform_create(self, serializer):

@@ -28,6 +28,7 @@ services:
     container_name: petflow-back
     env_file: .env
     build: ../backend/
+    
     command: >
       sh -c "
       python3 manage.py migrate &&
@@ -37,6 +38,7 @@ services:
       - "8000:8000"
     volumes:
       - media:/app/media/
+      - ../backend:/app
     depends_on:
       db:
         condition: service_healthy

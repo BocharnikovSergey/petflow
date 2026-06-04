@@ -11,7 +11,7 @@ from .serializers import (
 )
 from ..permissions import (
     IsAdminOrReadOnly, IsPetOwnerOrClinicReadOnly, IsPetOwner,
-    IsOwnerOrClinicStaff, IsOwnerReadOrClinicCreatedVisit
+    IsOwnerAndClinicCreateMedCard, IsOwnerOrClinicCreated
 )
 from ..mixins import ActionReadWriteSerializerMixin, ImageActionMixin
 from pets.models import (
@@ -101,7 +101,7 @@ class PetViewSet(
         detail=True,
         methods=['get'],
         url_path='medical-card',
-        permission_classes=(IsPetOwnerOrClinicReadOnly,)
+        permission_classes=(IsOwnerAndClinicCreateMedCard,)
     )
     def medical_card(self, request, pk=None):
         """
@@ -146,7 +146,7 @@ class ChronicConditionViewSet(viewsets.ModelViewSet):
     """
 
     http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = [IsOwnerReadOrClinicCreatedVisit]
+    permission_classes = [IsOwnerOrClinicCreated]
     serializer_class = ChronicConditionSerializer
 
     def get_queryset(self):
@@ -180,7 +180,7 @@ class VaccinationViewSet(viewsets.ModelViewSet):
     """
 
     http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = [IsOwnerReadOrClinicCreatedVisit]
+    permission_classes = [IsOwnerOrClinicCreated]
     serializer_class = VaccinationSerializer
 
     def get_queryset(self):

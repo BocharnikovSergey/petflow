@@ -3,6 +3,9 @@ from rest_framework.permissions import (
 )
 
 from .mixins import ClinicAccessMixin
+import logging 
+
+logger = logging.getLogger(__name__)
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -145,10 +148,39 @@ class IsOwnerReadOrClinicCreatedVisit(IsAuthenticated):
     
     def has_object_permission(self, request, view, obj):
         return request.method in SAFE_METHODS or (
-            hasattr(request.user, 'clinic')
+            hasattr(request.user, 'clinics')
             and request.user.clinic
             and request.user.clinic == obj.clinic
         )
+
+class IsOwnerOrClinicCreated(IsAuthenticated):
+    """Права доступа для визитов.
+    
+    Создание и редактирование доступно владельцу клиники,
+    а чтение доступно владельцу питомца.
+    """
+    
+    def has_object_permission(self, request, view, obj):
+        return request.method in SAFE_METHODS or (
+            request.user.is_clinic_member(obj.visit.clinic)
+        )
+
+
+class IsOwnerAndClinicCreateMedCard(BasePermission):
+    """
+    Права доступа для медецинской карты.
+    Владелец и Клиники могут просматривать и редактировать.
+    """
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated
+    
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in SAFE_METHODS
+            or obj.owner == request.user
+            or hasattr(request.user, 'clinics')
+        )
+
 
 class IsOwnerClinicAndAdminCreatedVetOrReadOnly(BasePermission):
     """
