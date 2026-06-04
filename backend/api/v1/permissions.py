@@ -52,7 +52,9 @@ class IsPetOwnerOrClinicReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         user = request.user
         return (
-            (user and user.is_authenticated and obj.owner == user)
+            (user and user.is_authenticated and (
+                obj.owner == user or user.is_superuser
+            ))
             or (
                 request.method in SAFE_METHODS
                 and obj.appointments.filter(
