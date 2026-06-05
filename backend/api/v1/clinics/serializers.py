@@ -1,6 +1,8 @@
 import logging
+import requests
 
 from django.utils import timezone
+from django.conf import settings
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -8,6 +10,7 @@ from clinics.models import Clinic, Address, Visit
 from .. import validators
 from ..serializers import BaseImageSerializer, BaseFileSerializer
 from ..pets.serializers import SpeciesSerializer, PetShortSerializer
+from ..utils.services import get_coordinates
 from pets.models import Species
 
 
@@ -47,6 +50,16 @@ class AddressSerializer(serializers.ModelSerializer):
             )
             raise serializers.ValidationError('Такой адрес уже существует.')
         return attrs
+    
+    def create(self, validated_data):
+        city = validated_data.get('city')
+        street = validated_data.get('street')
+        house = validated_data.get('house')
+        full_address = f'{city}, {street}, {house}'
+        coordinats = get_coordinates(full_address)
+        if coordinats:
+            validated_data.update(coordinats)
+        return super().create(validated_data)
 
 
 class ClinicReadSerializer(serializers.ModelSerializer):

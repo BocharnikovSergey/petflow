@@ -23,6 +23,8 @@ class Address(TimeStampedModel):
         max_length=constants.MAX_LEN_HOUSE,
         verbose_name='Номер дома'
     )
+    latitude = models.FloatField(null=True, blank=True, verbose_name='Широта')
+    longitude = models.FloatField(null=True, blank=True, verbose_name='Долгота')
 
     class Meta:
         verbose_name = 'Адрес'

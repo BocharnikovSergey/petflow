@@ -130,11 +130,13 @@ class AppointmentWriteSerializer(serializers.ModelSerializer):
             logger.warning(message)
             raise serializers.ValidationError({'slot': message})
 
+        pk = self.instance.pk if self.instance else None
+
         if Appointment.objects.filter(
             clinic=clinic,
             slot=attrs.get('slot'),
             date=attrs.get('date')
-        ).exists():
+        ).exclude(pk=pk).exists():
             message = 'Слот уже занят.'
             logger.warning(message)
             raise serializers.ValidationError({'slot': message})

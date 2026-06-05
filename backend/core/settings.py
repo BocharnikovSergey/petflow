@@ -31,6 +31,7 @@ INSTALLED_APPS = [
 
     'djoser',
     'django_filters',
+    'djeym',
 
     'users.apps.UsersConfig',
     'clinics.apps.ClinicsConfig',
@@ -212,3 +213,5 @@ EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_ADMIN = EMAIL_HOST_USER
+
+YANDEX_GEOCODER_API_KEY = os.getenv('YANDEX_GEOCODER_API_KEY', '')

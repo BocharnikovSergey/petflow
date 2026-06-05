@@ -1,6 +1,7 @@
 celery==5.6.3
 Django==5.2.5
 django-celery-beat==2.9.0
+django-editor-ymaps==2.3.11
 django-filter==25.1
 django-pytest==0.2.0
 djangorestframework==3.16.1

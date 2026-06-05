@@ -21,9 +21,11 @@ from ..permissions import (
     IsAdminOrReadOnly, IsClinicStaffOrAdminOrReadOnly, IsOwnerReadOrClinicCreatedVisit
 )
 from ..mixins import ActionReadWriteSerializerMixin, ImageActionMixin
+from ..utils.services import get_coordinates
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class AddressViewSet(viewsets.ModelViewSet):
     """ViewSet для управления адресами."""
